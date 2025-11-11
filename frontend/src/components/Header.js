@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function Header() {
+const Header = () => {
   const classes = useStyles();
   return (
     <AppBar position="relative">
@@ -32,6 +32,6 @@ function Header() {
       </Toolbar>
     </AppBar>
   );
-}
+};
 
 export default Header

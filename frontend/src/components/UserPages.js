@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function UserPages() {
+const UserPages = () => {
   const classes = useStyles();
   return (
     <>
@@ -40,6 +40,6 @@ function UserPages() {
       </footer>
     </>
   );
-}
+};
 
 export default UserPages

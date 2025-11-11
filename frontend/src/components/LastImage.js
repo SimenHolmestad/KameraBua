@@ -4,7 +4,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import FullscreenImage from './FullscreenImage';
 import AlbumEmptyMessage from './AlbumEmptyMessage';
 
-function LastImage(props) {
+const LastImage = (props) => {
   const [imageUrl, setImageUrl] = React.useState(null);
   const [albumEmpty, setAlbumEmpty] = React.useState(false);
   const [albumExists, setAlbumExists] = React.useState(true);
@@ -42,8 +42,8 @@ function LastImage(props) {
   }
 
   return (
-      <FullscreenImage imageUrl={ imageUrl } time={ props.overlayTime } startHided={ props.overlay }/>
+    <FullscreenImage imageUrl={ imageUrl } time={ props.overlayTime } startHided={ props.overlay }/>
   );
-}
+};
 
 export default LastImage

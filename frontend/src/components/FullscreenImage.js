@@ -29,7 +29,7 @@ const useStyles = makeStyles(({
   }
 }))
 
-function FullscreenImage(props) {
+const FullscreenImage = (props) => {
   const [extraStyles, setExtraStyles] = React.useState({ opacity: 0 });
   let firstImageShowing = React.useRef(true);
   const [isShowing, setIsShowing] = React.useState(false);
@@ -68,6 +68,6 @@ function FullscreenImage(props) {
       <img src={props.imageUrl} className={ classes.image } alt=""/>
     </div>
   );
-}
+};
 
 export default FullscreenImage

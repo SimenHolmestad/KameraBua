@@ -14,7 +14,7 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-function AlbumPage() {
+const AlbumPage = () => {
   const { albumName } = useParams();
   const [albumData, setAlbumData] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -73,6 +73,6 @@ function AlbumPage() {
       <Route path="*" element={albumOverview} />
     </Routes>
   )
-}
+};
 
 export default AlbumPage

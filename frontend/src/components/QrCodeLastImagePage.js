@@ -3,7 +3,7 @@ import QrCodePage from './QrCodePage';
 import LastImage from './LastImage';
 import { useParams } from 'react-router-dom';
 
-function QrCodeLastImagePage() {
+const QrCodeLastImagePage = () => {
   const { albumName } = useParams();
   return (
     <>
@@ -11,6 +11,6 @@ function QrCodeLastImagePage() {
       <QrCodePage/>
     </>
   );
-}
+};
 
 export default QrCodeLastImagePage

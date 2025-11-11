@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function Menu() {
+const Menu = () => {
   const albumData = useAlbumData();
   const classes = useStyles();
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -114,6 +114,6 @@ function Menu() {
       <NewAlbumDialog open={dialogOpen} handleClose={handleClose}/>
     </>
   );
-}
+};
 
 export default Menu;

@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function AlbumOverview({ albumData, setAlbumData, setImageIndex }) {
+const AlbumOverview = ({ albumData, setAlbumData, setImageIndex }) => {
   const [isCapturingImage, setIsCapturingImage] = React.useState(false);
   const classes = useStyles();
   const thumbnailUrls = albumData.thumbnail_urls
@@ -160,6 +160,6 @@ function AlbumOverview({ albumData, setAlbumData, setImageIndex }) {
       </Container>
     </>
   );
-}
+};
 
 export default AlbumOverview

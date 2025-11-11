@@ -13,7 +13,7 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-function AlbumEmptyMessage() {
+const AlbumEmptyMessage = () => {
   const classes = useStyles();
   return (
     <div className={ classes.noImagesDiv }>
@@ -27,6 +27,6 @@ function AlbumEmptyMessage() {
       </Container>
     </div>
   );
-}
+};
 
 export default AlbumEmptyMessage

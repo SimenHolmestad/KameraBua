@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ImageDetail({imageUrls, imageIndex, setImageIndex, albumName}) {
+const ImageDetail = ({imageUrls, imageIndex, setImageIndex, albumName}) => {
   const classes = useStyles();
   const [leftIsLoading, setLeftIsLoading] = React.useState(false);
   const [rightIsLoading, setRightIsLoading] = React.useState(false);
@@ -97,6 +97,6 @@ function ImageDetail({imageUrls, imageIndex, setImageIndex, albumName}) {
       </Container>
     </>
   );
-}
+};
 
 export default ImageDetail

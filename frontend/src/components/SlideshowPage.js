@@ -6,7 +6,7 @@ import { get_album_info } from './../server'
 import { useParams } from 'react-router-dom';
 
 
-function SlideshowPage() {
+const SlideshowPage = () => {
   const [imageUrls, setImageUrls] = React.useState(null);
   const { albumName } = useParams();
 
@@ -34,6 +34,6 @@ function SlideshowPage() {
   return (
     <Slideshow imageUrls={imageUrls}/>
   );
-}
+};
 
 export default SlideshowPage

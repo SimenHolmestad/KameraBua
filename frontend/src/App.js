@@ -15,7 +15,7 @@ import {
 } from 'react-router-dom';
 
 
-function App() {
+const App = () => {
   const theme = React.useMemo(() => createTheme(), []);
   return (
     <ThemeProvider theme={theme}>
@@ -32,6 +32,6 @@ function App() {
       </Router>
     </ThemeProvider>
   );
-}
+};
 
 export default App;

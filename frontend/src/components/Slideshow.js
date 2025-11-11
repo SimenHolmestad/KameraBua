@@ -2,7 +2,7 @@ import React from 'react';
 import FullscreenImage from './FullscreenImage';
 
 
-function Slideshow({ imageUrls }) {
+const Slideshow = ({ imageUrls }) => {
   const [topImageIndex, setTopImageIndex] = React.useState(0);
   const [bottomImageIndex, setBottomImageIndex] = React.useState(1 % imageUrls.length);
   const bottomImageRef = React.useRef(1 % imageUrls.length);
@@ -45,6 +45,6 @@ function Slideshow({ imageUrls }) {
       { topImage }
     </>
   );
-}
+};
 
 export default Slideshow

@@ -3,7 +3,7 @@ import SlideshowPage from './SlideshowPage';
 import LastImage from './LastImage';
 import { useParams } from 'react-router-dom';
 
-function SlideshowLastImagePage() {
+const SlideshowLastImagePage = () => {
   const { albumName } = useParams();
   return (
     <>
@@ -11,6 +11,6 @@ function SlideshowLastImagePage() {
       <LastImage albumName={albumName} overlay={true} overlayTime={20000}/>
     </>
   );
-}
+};
 
 export default SlideshowLastImagePage

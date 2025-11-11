@@ -9,7 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { create_or_update_album } from './../server'
 import { Navigate } from "react-router-dom";
 
-function NewAlbumDialog(props) {
+const NewAlbumDialog = (props) => {
   const [albumName, setAlbumName] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [redirectAlbum, setRedirectAlbum] = React.useState(null);
@@ -60,6 +60,6 @@ function NewAlbumDialog(props) {
       </Dialog>
     </div>
   );
-}
+};
 
 export default NewAlbumDialog

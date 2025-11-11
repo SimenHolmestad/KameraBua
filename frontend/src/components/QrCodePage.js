@@ -20,11 +20,11 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-function QrCodePage() {
+const QrCodePage = () => {
   const classes = useStyles();
   const [qrCodeData, setQrCodeData] = React.useState([]);
   React.useEffect(() => {
-    async function fetchData() {
+    const fetchData = async () => {
       const response = await get_qr_codes()
       setQrCodeData(response.qr_codes)
     }
@@ -52,6 +52,6 @@ function QrCodePage() {
       </div>
     </>
   );
-}
+};
 
 export default QrCodePage
