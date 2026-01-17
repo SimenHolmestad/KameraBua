@@ -1,9 +1,9 @@
-[Back to readme](../readme.md)
+[Back to readme](../README.md)
 
 # Show WiFi-code on screen
 If you know some (or all) of your photobooth users will not be connected to the your WiFi network, it might be a good idea to provide the users with a QR code to connect to the WiFi. Creating such a QR code can be accomplished quite easily with the CameraHub system.
 
-To create a WiFi QR code you must first create a file named `network_details.json` in the root directory of the project (inside the `CameraHub` folder). The file should be on the following format:
+To create a WiFi QR code you must first create a file named `network_details.json` under the `config/` folder in the root directory of the project. The file should be on the following format:
 
 ```
 {

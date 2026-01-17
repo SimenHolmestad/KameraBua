@@ -199,7 +199,7 @@ class QrCodeHandlerTestCase(unittest.TestCase):
         )
 
     def test_create_qr_code_handler_when_network_details_do_not_exist(self):
-        # We need to go down a directory as network_details.json might
+        # We need to go down a directory as config/network_details.json might
         # exist in the top dir of the project
         os.chdir(self.static_test_dir_name)
 
@@ -242,11 +242,12 @@ class QrCodeHandlerTestCase(unittest.TestCase):
         os.chdir("./..")
 
     def test_create_qr_code_handler_when_network_details_do_exist(self):
-        # We need to go down a directory so network_details.json does
+        # We need to go down a directory so config/network_details.json does
         # not get overwritten in the top directory
         os.chdir(self.static_test_dir_name)
 
-        with open("network_details.json", "w") as f:
+        os.makedirs("config", exist_ok=True)
+        with open(os.path.join("config", "network_details.json"), "w") as f:
             f.write("""{
             "wifi_name": "my_wifi_SSID",
             "wifi_protocol": "WPA/WPA2",

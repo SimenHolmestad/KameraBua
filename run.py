@@ -1,7 +1,7 @@
 import sys
 import argparse
 from backend.camera_module_options import get_camera_module_name_options
-from run_commands.command_options import get_instance_of_run_config_by_name, get_command_names
+from scripts.run_commands.command_options import get_instance_of_run_config_by_name, get_command_names
 
 
 def main():

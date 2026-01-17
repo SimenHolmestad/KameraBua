@@ -18,6 +18,7 @@ backend/static/
 
 test_albums/
 
-network_details.json
+config/network_details.json
+node_modules/
 
 .dir-locals.el

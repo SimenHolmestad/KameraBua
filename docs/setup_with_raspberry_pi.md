@@ -1,11 +1,11 @@
-[Back to readme](../readme.md)
+[Back to readme](../README.md)
 
 # Setting up CameraHub on the Raspberry PI
-CameraHub is meant to be run on a Raspberry Pi (or RPI or simply PI for short). To set up CameraHub on the Raspberry PI, it is recommended to have some experience with ssh and running commands in the terminal. 
+CameraHub is meant to be run on a Raspberry Pi (or RPI or simply PI for short). To set up CameraHub on the Raspberry PI, it is recommended to have some experience with ssh and running commands in the terminal.
 
 The recommended way of setting up CameraHub on the RPI is provided below, but some of the steps might be done in other ways. If you already have your Raspberry set up, you can move to the section [install project dependencies](#install-project-dependencies).
 
-## Installing the Raspberry PI OS 
+## Installing the Raspberry PI OS
 To install an operating system on the Raspberry PI, do the following:
 1. Download the OS ([Raspberry Pi OS with desktop](https://www.raspberrypi.org/software/operating-systems/) is recommended)
 2. Write the OS to the Micro SD card by using [balena etcher](https://www.balena.io/etcher/)
@@ -48,7 +48,7 @@ python3 run.py run_application -c <name_of_camera_module>
 Where `<name_of_camera_module>` is one of following:
 
 - `rpicam` (for Raspberry Pi Camera Module)
-- `dslr_jpg` 
+- `dslr_jpg`
 - `dslr_raw`
 - `dslr_raw_transfer`
 - `dummmy` (default)

@@ -1,4 +1,4 @@
-[Back to readme](../readme.md)
+[Back to readme](../README.md)
 
 # About the system
 Camerahub is in general not trying to be more complicated than it needs to be. This means:

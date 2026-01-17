@@ -82,10 +82,10 @@ class QrCodeHandler:
         return "http://{}:{}/".format(host_ip, port)
 
     def __add_wifi_qr_code_if_network_details_file_exists(self):
-        if os.path.exists("network_details.json"):
-            f = open("network_details.json", "r")
-            content = json.loads(f.read())
-            f.close()
+        network_details_path = self.__get_network_details_path()
+        if network_details_path:
+            with open(network_details_path, "r") as f:
+                content = json.loads(f.read())
             self.add_wifi_qr_code(
                 "wifi_qr_code",
                 content["wifi_name"],
@@ -96,7 +96,18 @@ class QrCodeHandler:
 
     def __get_path_to_icon_file(self, filename):
         return os.path.join(
+            "assets",
             "image_resources",
             "icons",
             filename
         )
+
+    def __get_network_details_path(self):
+        candidate_paths = [
+            os.path.join("config", "network_details.json"),
+            "network_details.json",
+        ]
+        for path in candidate_paths:
+            if os.path.exists(path):
+                return path
+        return None

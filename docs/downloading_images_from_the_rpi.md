@@ -1,4 +1,4 @@
-[Back to readme](../readme.md)
+[Back to readme](../README.md)
 
 # Downloading images from the Raspberry PI
 To download the images from the Raspberry PI, it is possible to use `scp` (secure copy). You could run the `scp` command from your own computer like this to get the images:

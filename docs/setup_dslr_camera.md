@@ -1,4 +1,4 @@
-[Back to readme](../readme.md)
+[Back to readme](../README.md)
 
 # Prerequisites
 Before setting up CameraHub on your Raspberry PI with a DSLR camera, you should first read through [the guide on how to setup CameraHub on the Raspberry PI](setup_with_raspberry_pi.md).

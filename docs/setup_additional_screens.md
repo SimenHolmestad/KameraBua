@@ -1,4 +1,4 @@
-[Back to readme](../readme.md)
+[Back to readme](../README.md)
 
 # Setup additional screens/monitors
 CameraHub provides some "hidden pages" which are not accessible from the user interface. These pages are meant to be shown on a monitor or projector close to the camera. You as the Photoboth operator can choose which pages to be shown to the user.

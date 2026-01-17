@@ -1,4 +1,4 @@
-[Back to readme](../readme.md)
+[Back to readme](../README.md)
 
 # Developing
 To run CameraHub with a camera connected, Raspberry PI and/or Linux is required. It is however possible to run the application without using a camera at all. When used this way, CameraHub will create dummy circle images, like the following:
