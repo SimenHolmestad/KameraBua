@@ -8,6 +8,13 @@ Camerahub is in general not trying to be more complicated than it needs to be. T
 
 This is some of the reason that the backend is developed in Flask. Developing CameraHub in Django probably would have been overkill when much of the Django functionality is not needed.
 
+# Technologies used
+The frameworks and libraries used for CameraHub are:
+
+- [Flask](https://flask.palletsprojects.com/en/2.0.x/) (for the backend)
+- [React](https://reactjs.org/) (for the frontend)
+- [Gphoto2](https://github.com/gphoto/gphoto2) (for communication with DSLR camera)
+
 # CameraHub architecture
 The CameraHub architecture is more or less like this:
 
@@ -71,13 +78,13 @@ Returns the QR Code information on the following form:
 With the current setup, just one or two qr codes are returned. This depends if the WiFi QR code is setup or not. See [Create a WiFi QR code](show_wifi_qr_code_on_main_screen.md).
 
 # Camera module
-The camera module is the part of the system which handles how images are captured. This process is very simple: 
+The camera module is the part of the system which handles how images are captured. This process is very simple:
 
 1. The camera module receives a filepath where a new image should be added
 2. The camera module captures an image using a camera
 3. The camera module saves the image to the correct location
 
-CameraHub comes with several camera modules. Which camera module to use has to be specified when starting the app. For more information on how to start the app with a camera module, see 
+CameraHub comes with several camera modules. Which camera module to use has to be specified when starting the app. For more information on how to start the app with a camera module, see
 [setting up CameraHub with Raspberry PI](docs/setup_with_raspberry_pi.md).
 
 The current camera modules available are:
@@ -88,9 +95,10 @@ The current camera modules available are:
 - `dslr_raw_transfer`
 - `dummmy` (default)
 
-It is possible to try out a camera module without running the app by doing:
+It is possible to try out a camera module without running the app by setting
+`camera.module` to the module name in `config/config.json`, then running:
 ```
-python3 run.py try_camera_module -c <name_of_module>
+python3 -m scripts.try_camera_module
 ```
 Doing this will create a folder named `test_albums` (in the root of the project) which will contain the image files created.
 

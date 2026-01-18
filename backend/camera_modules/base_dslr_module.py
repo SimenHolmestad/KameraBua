@@ -1,16 +1,17 @@
 from abc import ABC, abstractmethod
-from .base_camera_module import BaseCameraModule
-import subprocess
-import gphoto2 as gp
-import signal
-import time
 import os
+import signal
+import subprocess
+import time
+from typing import Any, Optional
+import gphoto2 as gp
+from .base_camera_module import BaseCameraModule
 
 
 class BaseDSLRModule(BaseCameraModule, ABC):
     """Camera module provinging basic DSLR functionality using GPhoto2"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(".jpg", **kwargs)
         camera = gp.Camera()
         print("Please connect and switch on your DSLR Camera", flush=True)
@@ -31,7 +32,7 @@ class BaseDSLRModule(BaseCameraModule, ABC):
         camera.exit()
 
     @abstractmethod
-    def capture_dslr_image(self, camera, image_path, raw_image_path=None):
+    def capture_dslr_image(self, camera: Any, image_path: str, raw_image_path: Optional[str] = None) -> None:
         """Method for capturing dlsr image and storing it in image_path.
         Should raise IOError if something goes wrong with capture.
 
@@ -40,7 +41,7 @@ class BaseDSLRModule(BaseCameraModule, ABC):
         """
         pass
 
-    def capture_image(self, image_path, raw_image_path=None):
+    def capture_image(self, image_path: str, raw_image_path: Optional[str] = None) -> None:
         """Captures an image and saves it in "image_path"."""
         start_time = time.time()
         self.kill_gphoto2_process()
@@ -54,7 +55,7 @@ class BaseDSLRModule(BaseCameraModule, ABC):
         camera.exit()
         print("Image capture took", round(time.time() - start_time, 2), "seconds")
 
-    def kill_gphoto2_process(self):
+    def kill_gphoto2_process(self) -> None:
         """Kill the gphoto-process that starts when the camera is first
         connected. A window opens when the camera is connected and we
         have to kill the process related to that window.
@@ -69,7 +70,7 @@ class BaseDSLRModule(BaseCameraModule, ABC):
                 pid = int(line.split(None, 1)[0])
                 os.kill(pid, signal.SIGKILL)
 
-    def set_capture_target(self, target_number):
+    def set_capture_target(self, target_number: int) -> None:
         """Sets the capture target of the camera.
 
         The parameter target_number should be either 0 or 1, which
@@ -82,14 +83,20 @@ class BaseDSLRModule(BaseCameraModule, ABC):
         """
         subprocess.run("gphoto2 --set-config capturetarget=" + str(target_number), shell=True)
 
-    def save_jpg_file(self, image_path, camera, camera_image_folder, camera_image_filename):
+    def save_jpg_file(
+        self,
+        image_path: str,
+        camera: Any,
+        camera_image_folder: str,
+        camera_image_filename: str
+    ) -> None:
         camera_file = camera.file_get(
             camera_image_folder, camera_image_filename, gp.GP_FILE_TYPE_NORMAL)
 
         print("Saving jpg image to", image_path)
         camera_file.save(image_path)
 
-    def save_raw_image(self, raw_image_path, camera, camera_file_path):
+    def save_raw_image(self, raw_image_path: str, camera: Any, camera_file_path: Any) -> None:
         print("Saving raw image to", raw_image_path)
         camera_file = camera.file_get(
             camera_file_path.folder,

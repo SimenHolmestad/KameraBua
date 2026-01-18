@@ -1,5 +1,7 @@
+from typing import Optional
 import qrcode
 from PIL import Image
+from backend.album_storage.folder import Folder
 
 
 class QrCode:
@@ -11,35 +13,35 @@ class QrCode:
     """
 
     def __init__(self,
-                 qr_code_folder,
-                 name,
-                 content,
-                 information_text,
-                 center_image_path=None,
-                 qr_image_size=1024,
-                 center_image_size=256):
-        self.folder = qr_code_folder
-        self.name = name
-        self.filename = self.name + ".png"
-        self.information_text = information_text
-        self.center_image_path = center_image_path
-        self.qr_image_size = qr_image_size
-        self.center_image_size = center_image_size
+                 qr_code_folder: Folder,
+                 name: str,
+                 content: str,
+                 information_text: str,
+                 center_image_path: Optional[str] = None,
+                 qr_image_size: int = 1024,
+                 center_image_size: int = 256) -> None:
+        self.folder: Folder = qr_code_folder
+        self.name: str = name
+        self.filename: str = self.name + ".png"
+        self.information_text: str = information_text
+        self.center_image_path: Optional[str] = center_image_path
+        self.qr_image_size: int = qr_image_size
+        self.center_image_size: int = center_image_size
         self.__generate_qr_code(self.folder.get_path_to_file(self.filename), content)
 
-    def get_relative_url(self):
+    def get_relative_url(self) -> str:
         return "{}/{}".format(
             self.folder.get_name(),
             self.filename
         )
 
-    def get_name(self):
+    def get_name(self) -> str:
         return self.name
 
-    def get_information_text(self):
+    def get_information_text(self) -> str:
         return self.information_text
 
-    def __generate_qr_code(self, qr_code_file_path, content):
+    def __generate_qr_code(self, qr_code_file_path: str, content: str) -> None:
         qr = qrcode.QRCode(
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_H,
@@ -56,7 +58,7 @@ class QrCode:
 
         qr_img.save(qr_code_file_path)
 
-    def __paste_image_in_center(self, background, center_image_path):
+    def __paste_image_in_center(self, background: Image.Image, center_image_path: str) -> Image.Image:
         paste_img = Image.open(center_image_path, 'r').convert("RGBA").resize((256, 256))
         offset_value = (self.qr_image_size - self.center_image_size) // 2
         offset = ((offset_value, offset_value))

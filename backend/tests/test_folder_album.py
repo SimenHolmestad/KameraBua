@@ -5,19 +5,20 @@ import tempfile
 from backend.album_storage.folder_album import FolderAlbum
 from backend.album_storage.folder import Folder
 from .camera_modules_for_testing import create_fast_dummy_module, DummyRawModule
+from .test_utils import temp_dir_relpath
 
 
 class FolderAlbumTestCase(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.test_dir = tempfile.TemporaryDirectory(dir=".")
-        self.test_dir_name = self.test_dir.name.split("./")[1]
+        self.test_dir_name = temp_dir_relpath(self.test_dir)
         folder_for_album = Folder(".", self.test_dir_name)
         self.album = FolderAlbum("test_album", folder_for_album)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.test_dir.cleanup()  # Remove test_dir from file system
 
-    def add_dummy_image_file_to_album(self, album_name, image_name):
+    def add_dummy_image_file_to_album(self, album_name, image_name) -> None:
         """Create a dummy image file with the specified name to the specified album. """
         path_to_image_file = os.path.join(
             self.test_dir_name,
@@ -27,7 +28,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         )
         open(path_to_image_file, 'a').close()
 
-    def create_current_image_number_file(self, album_name, current_image_number):
+    def create_current_image_number_file(self, album_name, current_image_number) -> None:
         current_image_number_file_path = os.path.join(
             self.test_dir_name,
             album_name,
@@ -38,14 +39,14 @@ class FolderAlbumTestCase(unittest.TestCase):
         f.write(str(current_image_number))
         f.close()
 
-    def test_creating_album_creates_album_folder(self):
+    def test_creating_album_creates_album_folder(self) -> None:
         expected_album_folder_path = os.path.join(
             self.test_dir_name,
             "test_album"
         )
         self.assertTrue(os.path.exists(expected_album_folder_path))
 
-    def test_creating_album_creates_images_folder(self):
+    def test_creating_album_creates_images_folder(self) -> None:
         expected_images_folder_path = os.path.join(
             self.test_dir_name,
             "test_album",
@@ -53,7 +54,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         )
         self.assertTrue(os.path.exists(expected_images_folder_path))
 
-    def test_creating_album_creates_thumbnails_folder(self):
+    def test_creating_album_creates_thumbnails_folder(self) -> None:
         expected_thumbnails_folder_path = os.path.join(
             self.test_dir_name,
             "test_album",
@@ -61,20 +62,20 @@ class FolderAlbumTestCase(unittest.TestCase):
         )
         self.assertTrue(os.path.exists(expected_thumbnails_folder_path))
 
-    def test_newly_created_album_has_no_description(self):
+    def test_newly_created_album_has_no_description(self) -> None:
         self.assertEqual(self.album.get_album_description(), "")
 
-    def test_newly_created_album_has_no_last_image(self):
+    def test_newly_created_album_has_no_last_image(self) -> None:
         self.assertEqual(self.album.get_relative_url_of_last_image(), None)
 
-    def test_newly_created_album_has_no_last_thumbnail(self):
+    def test_newly_created_album_has_no_last_thumbnail(self) -> None:
         self.assertEqual(self.album.get_relative_url_of_last_thumbnail(), None)
 
-    def test_set_album_description(self):
+    def test_set_album_description(self) -> None:
         self.album.set_album_description("This album is a test")
         self.assertEqual(self.album.get_album_description(), "This album is a test")
 
-    def test_capture_image_to_album(self):
+    def test_capture_image_to_album(self) -> None:
         camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
 
@@ -84,7 +85,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.assertEqual(self.album.get_relative_url_of_last_image(), expected_relative_image_url)
         self.assertEqual(self.album.get_relative_url_of_last_thumbnail(), expected_relative_thumbnail_url)
 
-    def test_captured_image_exists(self):
+    def test_captured_image_exists(self) -> None:
         camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
 
@@ -97,7 +98,7 @@ class FolderAlbumTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(expected_image_filepath))
 
-    def test_capture_image_after_externally_adding_files(self):
+    def test_capture_image_after_externally_adding_files(self) -> None:
         self.add_dummy_image_file_to_album("test_album", "image0001.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0002.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0003.jpg")
@@ -114,7 +115,7 @@ class FolderAlbumTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(expected_image_filepath))
 
-    def test_capture_image_after_externally_adding_files_weird_order(self):
+    def test_capture_image_after_externally_adding_files_weird_order(self) -> None:
         self.add_dummy_image_file_to_album("test_album", "image0001.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0002.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0003.jpg")
@@ -132,7 +133,7 @@ class FolderAlbumTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(expected_image_filepath))
 
-    def test_capture_image_with_wrong_image_number_file(self):
+    def test_capture_image_with_wrong_image_number_file(self) -> None:
         self.add_dummy_image_file_to_album("test_album", "image0001.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0002.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0003.jpg")
@@ -150,7 +151,7 @@ class FolderAlbumTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(expected_image_filepath))
 
-    def test_capture_image_creates_thumbnail(self):
+    def test_capture_image_creates_thumbnail(self) -> None:
         camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
 
@@ -163,7 +164,7 @@ class FolderAlbumTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(expected_thumbnail_filepath))
 
-    def test_image_and_thumbnail_same_number_after_capture(self):
+    def test_image_and_thumbnail_same_number_after_capture(self) -> None:
         camera_module = create_fast_dummy_module()
         self.add_dummy_image_file_to_album("test_album", "image0001.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0002.jpg")
@@ -180,7 +181,7 @@ class FolderAlbumTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(expected_thumbnail_filepath))
 
-    def test_capture_image_with_camera_module_requiring_raw_image_transfer(self):
+    def test_capture_image_with_camera_module_requiring_raw_image_transfer(self) -> None:
         raw_module = DummyRawModule()
         self.album.try_capture_image_to_album(raw_module)
 
@@ -200,7 +201,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         )
         self.assertTrue(os.path.exists(expected_raw_image_filepath))
 
-    def test_ensure_thumbnails_correct(self):
+    def test_ensure_thumbnails_correct(self) -> None:
         camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)
@@ -217,7 +218,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         thumbnails_folder_content = os.listdir(thumbnails_path)
         self.assertEqual(thumbnails_folder_content, ['image0001.jpg', 'image0002.jpg'])
 
-    def test_ensure_thumbnails_correct_with_deleted_image(self):
+    def test_ensure_thumbnails_correct_with_deleted_image(self) -> None:
         camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)
@@ -240,7 +241,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         thumbnails_folder_content = os.listdir(thumbnails_path)
         self.assertEqual(thumbnails_folder_content, ['image0001.jpg', 'image0003.jpg'])
 
-    def test_get_url_of_all_images(self):
+    def test_get_url_of_all_images(self) -> None:
         camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)
@@ -255,7 +256,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         ]
         self.assertEqual(relative_image_urls, expected_realtive_image_urls)
 
-    def test_get_url_of_all_thumbnails(self):
+    def test_get_url_of_all_thumbnails(self) -> None:
         camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)
@@ -270,7 +271,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         ]
         self.assertEqual(relative_thumbnail_urls, expected_relative_thumnail_urls)
 
-    def test_album_empty_after_deleting_all_images(self):
+    def test_album_empty_after_deleting_all_images(self) -> None:
         camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)

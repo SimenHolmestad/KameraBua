@@ -1,13 +1,14 @@
+import time
+from typing import Any, Optional
+import gphoto2 as gp
 from .base_dslr_module import BaseDSLRModule
 from .base_camera_module import ImageCaptureError
-import gphoto2 as gp
-import time
 
 
 class DSLRJpgModule(BaseDSLRModule):
     """A dslr module where no raw images are stored"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         # For maximum speed, we set capture target to 0, so that the
@@ -24,7 +25,7 @@ class DSLRJpgModule(BaseDSLRModule):
         print("---------------------------------------------------")
         time.sleep(2)
 
-    def capture_dslr_image(self, camera, image_path, raw_image_path=None):
+    def capture_dslr_image(self, camera: Any, image_path: str, raw_image_path: Optional[str] = None) -> None:
         # camera.capture should return the file path of the jpg image
         camera_file_path = camera.capture(gp.GP_CAPTURE_IMAGE)
 

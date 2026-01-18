@@ -1,15 +1,16 @@
 from abc import ABC, abstractmethod
 import traceback
+from typing import Optional
 
 
 class BaseCameraModule(ABC):
     """Abstract class containing common image capture related code"""
 
     def __init__(self,
-                 file_extension,
-                 needs_raw_file_transfer=False,
-                 raw_file_extension=None,
-                 verbose_errors=True):
+                 file_extension: str,
+                 needs_raw_file_transfer: bool = False,
+                 raw_file_extension: Optional[str] = None,
+                 verbose_errors: bool = True) -> None:
         """needs_raw_file_transfer should only be True if the camera captures
         both jpg and raw and the raw file needs to be stored in the system"""
         self.file_extension = file_extension
@@ -19,7 +20,7 @@ class BaseCameraModule(ABC):
         self.is_busy = False
 
     @abstractmethod
-    def capture_image(self, image_path, raw_file_path=None):
+    def capture_image(self, image_path: str, raw_file_path: Optional[str] = None) -> None:
         """Method for capturing image and storing it in image_path. Should
         raise ImageCaptureError with and error message if something
         goes wrong with capture.
@@ -30,7 +31,7 @@ class BaseCameraModule(ABC):
         """
         pass
 
-    def try_capture_image(self, image_path, raw_file_path=None):
+    def try_capture_image(self, image_path: str, raw_file_path: Optional[str] = None) -> None:
         if self.is_busy:
             raise ImageCaptureError("Camera is already in use")
         self.is_busy = True
@@ -42,7 +43,7 @@ class BaseCameraModule(ABC):
         finally:
             self.is_busy = False
 
-    def __handle_exception(self, e):
+    def __handle_exception(self, e: Exception) -> None:
         if self.verbose_errors:
             traceback.print_exc()
 

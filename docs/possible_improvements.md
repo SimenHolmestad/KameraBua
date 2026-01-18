@@ -6,10 +6,10 @@ There are probably a lot more improvements than these, but these are some I have
 ## Using websockets instead of polling server
 Currently, the info screens need to continuously poll the server to check for updates. This process could probably have been better with websockets.
 
-## Configuration files instead of command line arguments
-Right now the WiFi QR code system needs to be configured with a json file while the rest of the system needs to be configured with command line arguments. Maybe it would be better to have it all in a single configuration file? In the configuration file, all the possible options can also be written out as comments and it is possible to allow for more configurations. (like how many seconds an image should be displayed on a screen/monitor before disappearing).
+## Configuration file improvements
+Now that the app uses a single config file, it could be extended with more options (for example how long an image should be displayed on a screen/monitor before disappearing).
 
-## Better testing of the scripts/run_commands
+## Better testing of the scripts/commands
 Most of these are not very well tested as of now.
 
 # History and goals of CameraHub

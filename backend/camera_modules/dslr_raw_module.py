@@ -1,5 +1,6 @@
-from .base_dslr_module import BaseDSLRModule
+from typing import Any, Optional
 import gphoto2 as gp
+from .base_dslr_module import BaseDSLRModule
 
 
 class DSLRRawModule(BaseDSLRModule):
@@ -7,7 +8,7 @@ class DSLRRawModule(BaseDSLRModule):
     camera, but not on the Raspberry PI
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         # To get both raw images and jpg images, the capture target
@@ -15,7 +16,7 @@ class DSLRRawModule(BaseDSLRModule):
         # camera's SD card
         self.set_capture_target(1)
 
-    def capture_dslr_image(self, camera, image_path, raw_image_path=None):
+    def capture_dslr_image(self, camera: Any, image_path: str, raw_image_path: Optional[str] = None) -> None:
         # camera.capture returns the file path of the raw image
         camera_file_path = camera.capture(gp.GP_CAPTURE_IMAGE)
 

@@ -1,15 +1,20 @@
+from typing import Any, Iterable, List, Optional
 from flask import Blueprint, request, url_for, jsonify
 from backend.camera_modules.base_camera_module import ImageCaptureError
 
 
-def construct_album_api_blueprint(album_handler, camera_module, forced_album_name=None):
+def construct_album_api_blueprint(
+    album_handler: Any,
+    camera_module: Any,
+    forced_album_name: Optional[str] = None
+) -> Blueprint:
     """Constructs route related to accessing the albums and adding new
     images to them using the camera module
     """
     album_api_blueprint = Blueprint("albums", __name__)
 
     @album_api_blueprint.route("/", methods=["GET", "POST"])
-    def available_albums():
+    def available_albums() -> Any:
         """An endpoint for listing albums and create new albums.
 
         On GET: Return list of all available albums.
@@ -24,7 +29,7 @@ def construct_album_api_blueprint(album_handler, camera_module, forced_album_nam
         return get_available_albums(request)
 
     @album_api_blueprint.route("/<album_name>", methods=["GET", "POST"])
-    def album_info(album_name):
+    def album_info(album_name: str) -> Any:
         """An endpoint for listing images in an album or capture a new image
         to the album
 
@@ -49,7 +54,7 @@ def construct_album_api_blueprint(album_handler, camera_module, forced_album_nam
         return get_album_information(album_name)
 
     @album_api_blueprint.route("/<album_name>/last_image", methods=["GET"])
-    def last_image_for_album(album_name):
+    def last_image_for_album(album_name: str) -> Any:
         """Returns the url of the last image captured to the specified
         album
         """
@@ -71,7 +76,7 @@ def construct_album_api_blueprint(album_handler, camera_module, forced_album_nam
             "last_image_url": create_static_url(relative_url)
         })
 
-    def create_or_update_album(request):
+    def create_or_update_album(request: Any) -> Any:
         if forced_album_name:
             return unaccessible_album_error_message()
 
@@ -89,14 +94,14 @@ def construct_album_api_blueprint(album_handler, camera_module, forced_album_nam
             "album_url": url_for("albums.album_info", album_name=album_name)
         })
 
-    def get_available_albums(request):
+    def get_available_albums(request: Any) -> Any:
         if forced_album_name:
             return jsonify({"forced_album": forced_album_name})
 
         album_names = album_handler.get_available_album_names()
         return jsonify({"available_albums": album_names})
 
-    def try_capture_image_to_album(album_name):
+    def try_capture_image_to_album(album_name: str) -> Any:
         try:
             return capture_image_to_album(album_name)
         except ImageCaptureError as e:
@@ -104,7 +109,7 @@ def construct_album_api_blueprint(album_handler, camera_module, forced_album_nam
                 "error": str(e)
             })
 
-    def capture_image_to_album(album_name):
+    def capture_image_to_album(album_name: str) -> Any:
         album = album_handler.get_album(album_name)
         album.try_capture_image_to_album(camera_module)
 
@@ -116,7 +121,7 @@ def construct_album_api_blueprint(album_handler, camera_module, forced_album_nam
             "thumbnail_url": create_static_url(relative_thumbnail_url)
         })
 
-    def get_album_information(album_name):
+    def get_album_information(album_name: str) -> Any:
         album = album_handler.get_album(album_name)
         description = album.get_album_description()
         image_urls = reversed(album.get_relative_urls_of_all_images())
@@ -129,13 +134,13 @@ def construct_album_api_blueprint(album_handler, camera_module, forced_album_nam
             "description": description,
         })
 
-    def create_static_url(relative_url):
+    def create_static_url(relative_url: str) -> str:
         return url_for('static', filename=relative_url)
 
-    def create_static_url_list(relative_url_list):
+    def create_static_url_list(relative_url_list: Iterable[str]) -> List[str]:
         return list(map(create_static_url, relative_url_list))
 
-    def unaccessible_album_error_message():
+    def unaccessible_album_error_message() -> Any:
         return jsonify({
             "error": "Illegal operation. The only accessible album is {}.".format(forced_album_name)
         })

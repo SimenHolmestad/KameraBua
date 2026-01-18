@@ -3,3 +3,5 @@ numpy
 Flask
 qrcode
 pyzbar
+pytest
+pydantic

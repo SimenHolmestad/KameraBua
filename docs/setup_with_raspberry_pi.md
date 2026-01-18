@@ -38,14 +38,10 @@ Note that using a DSLR camera requires [further installation steps](#the-dslr-ca
 # Running the application (Not deploying!)
 The command for running the application on the Raspberry PI is:
 ```
-python3 run.py run_application
+python3 -m scripts
 ```
 
-To use an actual camera, the application must be run as
-```
-python3 run.py run_application -c <name_of_camera_module>
-```
-Where `<name_of_camera_module>` is one of following:
+To use an actual camera, set `camera.module` in `config/config.json` to one of:
 
 - `rpicam` (for Raspberry Pi Camera Module)
 - `dslr_jpg`
@@ -53,32 +49,42 @@ Where `<name_of_camera_module>` is one of following:
 - `dslr_raw_transfer`
 - `dummmy` (default)
 
-It is also possible to run the application with access to only a single album. To do this, run the application with:
-```
-python3 run.py run_application -c <name_of_module> --force_album <album_name>
-```
+It is also possible to run the application with access to only a single album. To do this, set `albums.forced_album` in `config/config.json`.
 
 With the users only being able to access to a single album, the user interface becomes simpler.
 
-If you for example want to run CameraHub using the Raspberry PI Camera Module and have just one album named "Halloween", the deploy command becomes:
+If you for example want to run CameraHub using the Raspberry PI Camera Module and have just one album named "Halloween", your config should include:
 
 ```
-python3 run.py run_application -c rpicam --force_album Halloween
+{
+  "albums": {
+    "forced_album": "Halloween"
+  },
+  "camera": {
+    "module": "rpicam",
+    "options": {}
+  },
+  "qr_codes": {
+    "use_center_images": true,
+    "wifi": {
+      "enabled": false,
+      "name": "",
+      "protocol": "",
+      "password": "",
+      "description": ""
+    }
+  }
+}
 ```
 
 # Deploying
-As we want CameraHub to run at all times, we need to deploy it somehow. One way to deploy the application is to use systemd, as described in [this blog post](https://blog.miguelgrinberg.com/post/running-a-flask-application-as-a-service-with-systemd). To make depoying to systemd simpler, a deploy script is provided to do this job. The deploy script can be run with:
+As we want CameraHub to run at all times, we need to deploy it somehow. One way to deploy the application is to use systemd, as described in [this blog post](https://blog.miguelgrinberg.com/post/running-a-flask-application-as-a-service-with-systemd). To make depoying to systemd simpler, a deploy script is provided to do this job. To deploy, run:
 
 ```
-sudo python3 run.py deploy <args>
+sudo python3 -m scripts.deploy
 ```
 
-where `<args>` are the same as when running the application. If you for example want to deploy the application the same way as above, with the RPI Camera Module and one album named "Halloween", the command becomes:
-```
-sudo python3 run.py deploy -c rpicam --force_album Halloween
-```
-
-To redeploy with other arguments, just run the deploy command again.
+To redeploy with other settings, update `config/config.json` and run the deploy command again.
 
 If you want to get the status of the system after deploying, you can run the command:
 ```

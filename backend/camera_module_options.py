@@ -1,8 +1,11 @@
+from typing import Any, Dict, List, Type
 from .camera_modules.dummy_camera_module import DummyCameraModule
 from .camera_modules.rpicam_module import RPICameraModule
 
-CAMERA_MODULE_OPTIONS = {"dummy": DummyCameraModule,
-                         "rpicam": RPICameraModule}
+CAMERA_MODULE_OPTIONS: Dict[str, Type] = {
+    "dummy": DummyCameraModule,
+    "rpicam": RPICameraModule
+}
 
 # The dslr modules can only be imported when gphoto2 is installed.
 try:
@@ -21,13 +24,13 @@ class CameraModuleNotFoundError(Exception):
     pass
 
 
-def get_camera_module_name_options():
+def get_camera_module_name_options() -> List[str]:
     """Returns a list with the names of the possible camera modules the
     system can use."""
     return list(CAMERA_MODULE_OPTIONS.keys())
 
 
-def get_instance_of_camera_module_by_name(module_name):
+def get_instance_of_camera_module_by_name(module_name: str) -> Any:
     if module_name not in get_camera_module_name_options():
         raise CameraModuleNotFoundError
 

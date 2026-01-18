@@ -1,4 +1,5 @@
 venv/
+.venv/
 .DS_store
 
 *.pyc
@@ -18,7 +19,6 @@ backend/static/
 
 test_albums/
 
-config/network_details.json
 node_modules/
 
 .dir-locals.el

@@ -1,0 +1,19 @@
+{
+  "albums": {
+    "forced_album": null
+  },
+  "camera": {
+    "module": "dummy",
+    "options": {}
+  },
+  "qr_codes": {
+    "use_center_images": true,
+    "wifi": {
+      "enabled": true,
+      "name": "my_wifi_SSID",
+      "protocol": "WPA/WPA2",
+      "password": "my_super_secret_password",
+      "description": "Scan qr code to connect!"
+    }
+  }
+}
