@@ -1,17 +1,17 @@
 import argparse
 import os
 import uvicorn
-from backend.core.config_loader import load_settings
-from backend.core.settings import Settings
+from backend.core.config_loader import load_config
+from backend.core.config import Config
 from scripts.shared.utils import (
     DEBUG_PORT,
-    create_app_with_settings,
+    create_app_with_config,
     find_ip_address_for_device,
     get_url_for_qr_code_page,
 )
 
 
-def run_backend(settings: Settings) -> None:
+def run_backend(config: Config) -> None:
     """This should only need to be done when working on or testing the frontend."""
     print("Running the backend in debug mode. Start the frontend in a separate terminal window")
 
@@ -25,10 +25,10 @@ def run_backend(settings: Settings) -> None:
         port = DEBUG_PORT
 
     host_ip = find_ip_address_for_device()
-    qr_code_url = get_url_for_qr_code_page(host_ip, port, settings.albums.forced_album)
+    qr_code_url = get_url_for_qr_code_page(host_ip, port, config.albums.forced_album)
     print("Url for qr codes (when frontend is running):", qr_code_url)
 
-    app = create_app_with_settings(settings, host_ip, port)
+    app = create_app_with_config(config, host_ip, port)
     uvicorn.run(app, host="localhost", port=port, log_level="debug")
 
 
@@ -41,8 +41,8 @@ def main() -> None:
         help="Path to a config file."
     )
     args = parser.parse_args()
-    settings = load_settings(args.config)
-    run_backend(settings)
+    config = load_config(args.config)
+    run_backend(config)
 
 
 if __name__ == "__main__":

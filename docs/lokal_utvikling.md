@@ -1,6 +1,6 @@
-[Tilbake til lesmeg](../lesmeg.md)
+[Tilbake til readme](../readme.md)
 
-# Utvikling
+# Lokal utvikling
 Under utvikling vil applikasjonen lage bilder som dette når det ikke er noe kamera koblet til:
 
 ![Dummy demo circle image](images/dummy_demo_image.png)
@@ -12,13 +12,9 @@ cd CameraHub
 python3.13 -m venv .venv
 source .venv/bin/activate
 pip3 install -r python-requirements.txt
-export FLASK_ENV=development
-python3 -m scripts.run_application
-```
-For å kjøre kun backend uten å bygge frontend, bruk:
-```
 python3 -m scripts.run_backend
 ```
+(neste gang trenger du bare source `.venv/bin/activate && python3 -m scripts.run_backend`)
 
 For å starte frontend, kjør dette i egen terminal.
 ```
@@ -27,7 +23,14 @@ npm install
 npm run dev
 ```
 
-# Kjøre tester
+Det er også mulig å kjøre begge deler "i produksjon" lokalt med:
 ```
-export DYLD_LIBRARY_PATH=/opt/homebrew/lib:/usr/local/lib:$DYLD_LIBRARY_PATH && python3 -m pytest backend/tests
+source .venv/bin/activate
+python3 -m scripts.run_application
+```
+
+# Kjøre tester
+For å kjøre tester må du ha installert zbar (kan gjøres med `brew install zbar`)
+```
+export DYLD_LIBRARY_PATH=/opt/homebrew/lib && python3 -m pytest backend/tests
 ```

@@ -4,7 +4,7 @@ import tempfile
 from pyzbar.pyzbar import decode
 from PIL import Image
 from scripts.shared import qr_code_utils
-from backend.core.settings import WifiSettings
+from backend.core.config import WifiConfig
 from .test_utils import temp_dir_relpath
 
 
@@ -222,11 +222,11 @@ class QrCodeHandlerTestCase(unittest.TestCase):
         # We need to go down a directory to isolate from any repo config
         os.chdir(self.static_test_dir_name)
 
-        qr_code_context = qr_code_utils.create_qr_codes_with_settings(
+        qr_code_context = qr_code_utils.create_qr_codes_with_config(
             self.static_test_dir_name,
             5000,
             "192.168.0.1",
-            wifi_settings=WifiSettings(enabled=False)
+            wifi_config=WifiConfig(enabled=False)
         )
         qr_codes = qr_code_utils.get_qr_codes(qr_code_context)
         self.assertEqual(len(qr_codes), 1)
@@ -236,7 +236,7 @@ class QrCodeHandlerTestCase(unittest.TestCase):
     def test_qr_code_created_with_forced_album(self) -> None:
         os.chdir(self.static_test_dir_name)
 
-        qr_code_utils.create_qr_codes_with_settings(
+        qr_code_utils.create_qr_codes_with_config(
             self.static_test_dir_name,
             5000,
             "192.168.0.1",
@@ -265,19 +265,19 @@ class QrCodeHandlerTestCase(unittest.TestCase):
         # We need to go down a directory to isolate from any repo config
         os.chdir(self.static_test_dir_name)
 
-        wifi_settings = WifiSettings(
+        wifi_config = WifiConfig(
             enabled=True,
-            name="my_wifi_SSID",
+            wifi_name="my_wifi_SSID",
             protocol="WPA/WPA2",
             password="my_super_secret_password",
             description="Scan qr code to connect to my_wifi_SSID!"
         )
 
-        qr_code_context = qr_code_utils.create_qr_codes_with_settings(
+        qr_code_context = qr_code_utils.create_qr_codes_with_config(
             self.static_test_dir_name,
             5000,
             "192.168.0.1",
-            wifi_settings=wifi_settings
+            wifi_config=wifi_config
         )
         qr_codes = qr_code_utils.get_qr_codes(qr_code_context)
         self.assertEqual(len(qr_codes), 2)

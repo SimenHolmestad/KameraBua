@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from backend.camera_service import ImageCaptureError
 from backend.album_service import album_service
-from backend.core.settings import Settings
+from backend.core.config import Config
 
 
 class AlbumCreateRequest(BaseModel):
@@ -42,7 +42,7 @@ class LastImageResponse(BaseModel):
 def construct_album_api_router(
     albums_base_path: str,
     albums_dir: str,
-    settings: Settings,
+    config: Config,
     forced_album_name: Optional[str] = None
 ) -> APIRouter:
     """Constructs route related to accessing the albums and adding new
@@ -177,7 +177,7 @@ def construct_album_api_router(
             albums_base_path,
             albums_dir,
             album_name,
-            settings
+            config
         )
         return {
             "success": "Image successfully captured",

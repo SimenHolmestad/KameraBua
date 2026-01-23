@@ -2,7 +2,7 @@ import os
 from typing import Any, Dict, List, Optional
 import qrcode
 from PIL import Image
-from backend.core.settings import WifiSettings
+from backend.core.config import WifiConfig
 
 QrCodeContext = Dict[str, Any]
 QrCodeEntry = Dict[str, str]
@@ -69,16 +69,16 @@ def get_qr_code_urls_as_strings(context: QrCodeContext, host_ip: str) -> List[st
     ]
 
 
-def create_qr_codes_with_settings(
+def create_qr_codes_with_config(
     static_folder_path: str,
     host_ip: str,
     port: int,
     use_center_images: bool = False,
     forced_album_name: Optional[str] = None,
-    wifi_settings: Optional[WifiSettings] = None
+    wifi_config: Optional[WifiConfig] = None
 ) -> QrCodeContext:
     context = create_qr_code_context(static_folder_path, use_center_images)
-    _add_wifi_qr_code_from_settings(context, wifi_settings)
+    _add_wifi_qr_code_from_config(context, wifi_config)
 
     start_page_url = get_start_page_url(host_ip, port, forced_album_name)
     add_url_qr_code(
@@ -154,15 +154,15 @@ def _get_absolute_url_for_qr_code(qr_code: QrCodeEntry, host_ip: str) -> str:
     return "http://" + host_ip + ":5000/static/" + qr_code["relative_url"]
 
 
-def _add_wifi_qr_code_from_settings(context: QrCodeContext, wifi_settings: Optional[WifiSettings]) -> None:
-    if isinstance(wifi_settings, WifiSettings) and wifi_settings.enabled:
+def _add_wifi_qr_code_from_config(context: QrCodeContext, wifi_config: Optional[WifiConfig]) -> None:
+    if isinstance(wifi_config, WifiConfig) and wifi_config.enabled:
         add_wifi_qr_code(
             context,
             "wifi_qr_code",
-            wifi_settings.name,
-            wifi_settings.protocol,
-            wifi_settings.password,
-            wifi_settings.description
+            wifi_config.wifi_name,
+            wifi_config.protocol,
+            wifi_config.password,
+            wifi_config.description
         )
 
 

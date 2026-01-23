@@ -36,7 +36,7 @@ type ImageDetailProps = {
   albumName: string;
 };
 
-const ImageDetail = ({imageUrls, imageIndex, setImageIndex, albumName}: ImageDetailProps) => {
+const ImageDetail = ({ imageUrls, imageIndex, setImageIndex, albumName }: ImageDetailProps) => {
   const classes = useStyles();
   const [leftIsLoading, setLeftIsLoading] = React.useState(false);
   const [rightIsLoading, setRightIsLoading] = React.useState(false);
@@ -65,7 +65,7 @@ const ImageDetail = ({imageUrls, imageIndex, setImageIndex, albumName}: ImageDet
 
   let leftButton = null
   if (leftIsLoading) {
-    leftButton = <CircularProgress size="2em"/>
+    leftButton = <CircularProgress size="2em" />
   } else {
     leftButton = (
       <Button onClick={goToPreviousImage} disabled={leftButtonDisabled}>
@@ -77,7 +77,7 @@ const ImageDetail = ({imageUrls, imageIndex, setImageIndex, albumName}: ImageDet
 
   let rightButton = null
   if (rightIsLoading) {
-    rightButton = <CircularProgress size="2em"/>
+    rightButton = <CircularProgress size="2em" />
   } else {
     rightButton = (
       <Button onClick={goToNextImage} disabled={rightButtonDisabled}>
@@ -99,9 +99,9 @@ const ImageDetail = ({imageUrls, imageIndex, setImageIndex, albumName}: ImageDet
           Back to album
         </Button>
         <img className={classes.image}
-             onLoad={doneLoading}
-             src={imageUrls[imageUrls.length - imageIndex]}
-             alt=""/>
+          onLoad={doneLoading}
+          src={imageUrls[imageUrls.length - imageIndex]}
+          alt="" />
         <Grid container justifyContent="space-between">
           {leftButton}
           {rightButton}

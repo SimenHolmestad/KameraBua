@@ -20,15 +20,7 @@ export type ApiError = { error: string };
 export type Result<T> = T | ApiError;
 
 const resolveApiBaseUrl = (): string => {
-  if (typeof window === "undefined") {
-    return "http://localhost:5000";
-  }
-
-  const { protocol, hostname, port } = window.location;
-  if (port === "5000") {
-    return `${protocol}//${hostname}:${port}`;
-  }
-  return `${protocol}//${hostname}:5000`;
+  return window.location.origin;
 };
 
 client.setConfig({ baseUrl: resolveApiBaseUrl() });

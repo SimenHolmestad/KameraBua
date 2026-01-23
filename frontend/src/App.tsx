@@ -1,7 +1,8 @@
 import React from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import UserPages from './components/UserPages'
+import AlbumPage from './components/AlbumPage'
+import FrontPage from './components/FrontPage'
 import LastImagePage from './components/LastImagePage'
 import QrCodePage from './components/QrCodePage'
 import QrCodeLastImagePage from './components/QrCodeLastImagePage'
@@ -14,7 +15,6 @@ import {
   Route,
 } from 'react-router-dom';
 
-
 const App = () => {
   const theme = React.useMemo(() => createTheme(), []);
   return (
@@ -26,8 +26,11 @@ const App = () => {
           <Route path='/album/:albumName/last_image_qr' element={<QrCodeLastImagePage />} />
           <Route path='/album/:albumName/slideshow' element={<SlideshowPage />} />
           <Route path='/album/:albumName/slideshow_last_image' element={<SlideshowLastImagePage />} />
+          <Route path='/album/:albumName/detail' element={<AlbumPage view="detail" />} />
+          <Route path='/album/:albumName' element={<AlbumPage view="overview" />} />
           <Route path='/qr' element={<QrCodePage />} />
-          <Route path='/*' element={<UserPages />} />
+          <Route path='/' element={<FrontPage />} />
+          <Route path='*' element={<FrontPage />} />
         </Routes>
       </Router>
     </ThemeProvider>

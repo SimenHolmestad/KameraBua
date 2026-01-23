@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from backend.app import create_app
 from backend.album_service import album_service
 from scripts.shared import qr_code_utils
-from .camera_modules_for_testing import create_fast_dummy_settings, create_faulty_dummy_settings
+from .camera_modules_for_testing import create_fast_dummy_config, create_faulty_dummy_config
 from .test_utils import temp_dir_relpath
 
 
@@ -17,21 +17,21 @@ class AlbumApiTestCase(unittest.TestCase):
         self.album_dir_path = os.path.join(self.static_dir_name, "albums")
         self.albums_dir_name = "albums"
 
-        self.settings = create_fast_dummy_settings()
-        self.create_app_and_client_with_settings(self.settings)
+        self.config = create_fast_dummy_config()
+        self.create_app_and_client_with_config(self.config)
 
-    def create_app_and_client_with_settings(self, settings) -> None:
-        self.settings = settings
+    def create_app_and_client_with_config(self, config) -> None:
+        self.config = config
         qr_code_context = qr_code_utils.create_qr_code_context(self.static_dir_name)
-        app = create_app(self.static_dir_name, settings, qr_code_utils.get_qr_codes(qr_code_context))
+        app = create_app(self.static_dir_name, config, qr_code_utils.get_qr_codes(qr_code_context))
         self.test_client = TestClient(app)
 
     def create_app_and_client_with_forced_album(self, forced_album_name) -> None:
-        settings = create_fast_dummy_settings()
-        settings.albums.forced_album = forced_album_name
-        self.settings = settings
+        config = create_fast_dummy_config()
+        config.albums.forced_album = forced_album_name
+        self.config = config
         qr_code_context = qr_code_utils.create_qr_code_context(self.static_dir_name)
-        app = create_app(self.static_dir_name, settings, qr_code_utils.get_qr_codes(qr_code_context))
+        app = create_app(self.static_dir_name, config, qr_code_utils.get_qr_codes(qr_code_context))
         self.test_client = TestClient(app)
 
     def tearDown(self) -> None:
@@ -46,7 +46,7 @@ class AlbumApiTestCase(unittest.TestCase):
             self.static_dir_name,
             self.albums_dir_name,
             album_name,
-            self.settings
+            self.config
         )
 
     def test_no_available_albums_when_there_are_none(self) -> None:
@@ -208,12 +208,12 @@ class AlbumApiTestCase(unittest.TestCase):
             'album_name': 'album1',
             'description': '',
             'image_urls': [
-                '/static/albums/album1/images/image0001.png',
-                '/static/albums/album1/images/image0002.png'
+                '/static/albums/album1/images/image0002.png',
+                '/static/albums/album1/images/image0001.png'
             ],
             'thumbnail_urls': [
-                '/static/albums/album1/thumbnails/image0001.jpg',
-                '/static/albums/album1/thumbnails/image0002.jpg'
+                '/static/albums/album1/thumbnails/image0002.jpg',
+                '/static/albums/album1/thumbnails/image0001.jpg'
             ]
         })
 
@@ -237,8 +237,8 @@ class AlbumApiTestCase(unittest.TestCase):
         })
 
     def test_unsuccessful_image_capture_response(self) -> None:
-        faulty_settings = create_faulty_dummy_settings()
-        self.create_app_and_client_with_settings(faulty_settings)
+        faulty_config = create_faulty_dummy_config()
+        self.create_app_and_client_with_config(faulty_config)
         self.create_temp_album("album1")
         response = self.test_client.post("/albums/album1")
         json_response = response.json()
@@ -246,14 +246,14 @@ class AlbumApiTestCase(unittest.TestCase):
         self.assertEqual(json_response, {'error': 'This is a test error message'})
 
     def test_camera_is_not_busy_after_failed_capture(self) -> None:
-        faulty_settings = create_faulty_dummy_settings()
-        self.create_app_and_client_with_settings(faulty_settings)
+        faulty_config = create_faulty_dummy_config()
+        self.create_app_and_client_with_config(faulty_config)
         self.create_temp_album("album1")
 
         self.test_client.post(
             "/albums/album1"
         ).json()  # This request should fail
-        faulty_settings.camera.options["should_fail"] = False
+        faulty_config.camera.options["should_fail"] = False
 
         json_response = self.test_client.post("/albums/album1").json()
         self.assertNotIn("error", json_response)

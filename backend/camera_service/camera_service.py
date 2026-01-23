@@ -4,7 +4,7 @@ import subprocess
 import time
 import traceback
 from typing import Any, Dict, Optional
-from backend.core.settings import Settings
+from backend.core.config import Config
 
 DEFAULT_MODULE_NAME = "dummy"
 _BUSY = False
@@ -20,14 +20,14 @@ class CameraModuleNotFoundError(RuntimeError):
 
 
 def try_capture_image(
-    settings: Settings,
+    config: Config,
     image_path: str,
     raw_file_path: Optional[str] = None
 ) -> None:
-    module_name = settings.camera.module or DEFAULT_MODULE_NAME
-    module_config = _get_module_config(settings, module_name)
+    module_name = config.camera.module or DEFAULT_MODULE_NAME
+    module_config = _get_module_config(config, module_name)
     capture_handler = _get_capture_handler(module_name)
-    verbose_errors = settings.camera.options.get("verbose_errors", True)
+    verbose_errors = config.camera.options.get("verbose_errors", True)
 
     global _BUSY
     if _BUSY:
@@ -37,7 +37,7 @@ def try_capture_image(
     _BUSY = True
 
     try:
-        capture_handler(settings.camera.options, module_config, image_path, raw_file_path)
+        capture_handler(config.camera.options, module_config, image_path, raw_file_path)
     except Exception as exc:
         _handle_exception(exc, verbose_errors)
     finally:
@@ -54,8 +54,8 @@ def _handle_exception(exc: Exception, verbose_errors: bool) -> None:
     raise exc
 
 
-def _get_module_config(settings: Settings, module_name: str) -> Dict[str, Any]:
-    modules = settings.camera.modules
+def _get_module_config(config: Config, module_name: str) -> Dict[str, Any]:
+    modules = config.camera.modules
     if module_name not in modules:
         raise CameraModuleNotFoundError(f"Unknown camera module: {module_name}")
     return modules[module_name]
@@ -145,7 +145,7 @@ def _capture_rpicam_image(
     image_path: str,
     raw_file_path: Optional[str]
 ) -> None:
-    subprocess.run(["raspistill", "-f", "-vf", "-o", image_path], check=False)
+    subprocess.run(["rpicam-still", "-f", "--vflip", "-o", image_path], check=False)
     if not os.path.exists(image_path):
         raise ImageCaptureError("Image was not captured")
 

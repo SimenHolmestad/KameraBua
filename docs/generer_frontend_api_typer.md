@@ -1,4 +1,4 @@
-[Tilbake til lesmeg](../lesmeg.md)
+[Tilbake til readme](../readme.md)
 
 # Generer frontend API-typer
 

@@ -8,7 +8,7 @@ from typing import Mapping
 from scripts.shared import qr_code_utils
 from backend.album_service import album_service
 from backend.app import create_app
-from backend.core.settings import Settings
+from backend.core.config import Config
 DEBUG_PORT = 3000
 PRODUCTION_PORT = 5000
 
@@ -39,30 +39,34 @@ def frontend_is_built(static_folder_name: str) -> bool:
 
 def open_webpage_in_device_browser(url: str) -> Optional[subprocess.Popen]:
     """If chromium is used, the chromium subprocess is returned so that it can be terminated later."""
-    if os.path.exists("/usr/bin/chromium-browser"):
-        os.environ["DISPLAY"] = ":0"
-        cmd = ["sleep", "2", "&&", "/usr/bin/chromium-browser", "--start-fullscreen", url]
-        # Return a chromium subprocessed with suppressed output
-        with open(os.devnull, 'w') as fp:
-            return subprocess.Popen(" ".join(cmd), shell=True, stdout=fp, stderr=fp)
     if platform.system() == "Darwin":
         cmd = "open " + url
         subprocess.run(cmd, shell=True)
-    return None
+        return None
+
+    if os.path.exists("/usr/bin/chromium"):
+        os.environ["DISPLAY"] = ":0"
+        print("Opening chromium browser...")
+        cmd = ["sleep", "2", "&&", "/usr/bin/chromium", "--start-fullscreen", url]
+        # Return a chromium subprocessed with suppressed output
+        with open(os.devnull, 'w') as fp:
+            return subprocess.Popen(" ".join(cmd), shell=True, stdout=fp, stderr=fp)
+
+    print("Could not open browser automatically or find chromium")
 
 
 def create_qr_codes(
-    settings: Settings,
+    config: Config,
     host_ip: str,
     port: int
 ) -> list[Mapping[str, str]]:
-    context = qr_code_utils.create_qr_codes_with_settings(
-        static_folder_path(settings.static_folder_name),
+    context = qr_code_utils.create_qr_codes_with_config(
+        static_folder_path(config.static_folder_name),
         host_ip,
         port,
-        use_center_images=settings.qr_codes.use_center_images,
-        forced_album_name=settings.albums.forced_album,
-        wifi_settings=settings.qr_codes.wifi
+        use_center_images=config.qr_codes.use_center_images,
+        forced_album_name=config.albums.forced_album,
+        wifi_config=config.wifi_qr_code
     )
     return qr_code_utils.get_qr_codes(context)
 
@@ -82,18 +86,18 @@ def ensure_forced_album_is_created(
         album_service.get_or_create_album(base_path, albums_dir, forced_album)
 
 
-def create_app_with_settings(
-    settings: Settings,
+def create_app_with_config(
+    config: Config,
     host_ip: str,
     port: int
 ) -> Any:
-    qr_codes = create_qr_codes(settings, host_ip, port)
-    base_path = static_folder_path(settings.static_folder_name)
-    ensure_forced_album_is_created(base_path, "albums", settings.albums.forced_album)
+    qr_codes = create_qr_codes(config, host_ip, port)
+    base_path = static_folder_path(config.static_folder_name)
+    ensure_forced_album_is_created(base_path, "albums", config.albums.forced_album)
 
     return create_app(
-        static_folder_path(settings.static_folder_name),
-        settings,
+        static_folder_path(config.static_folder_name),
+        config,
         qr_codes
     )
 

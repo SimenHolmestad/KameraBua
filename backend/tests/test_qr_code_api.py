@@ -3,7 +3,7 @@ import tempfile
 from fastapi.testclient import TestClient
 from backend.app import create_app
 from scripts.shared import qr_code_utils
-from .camera_modules_for_testing import create_fast_dummy_settings
+from .camera_modules_for_testing import create_fast_dummy_config
 from .test_utils import temp_dir_relpath
 
 
@@ -12,12 +12,12 @@ class QrCodeApiTestCase(unittest.TestCase):
         # Create a temporary static dir which is deleted after every test
         self.static_dir = tempfile.TemporaryDirectory(dir=".")
         self.static_dir_name = temp_dir_relpath(self.static_dir)
-        settings = create_fast_dummy_settings()
+        config = create_fast_dummy_config()
 
         self.qr_code_context = qr_code_utils.create_qr_code_context(self.static_dir_name)
         app = create_app(
             self.static_dir_name,
-            settings,
+            config,
             qr_code_utils.get_qr_codes(self.qr_code_context)
         )
         self.test_client = TestClient(app)

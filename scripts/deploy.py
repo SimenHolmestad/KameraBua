@@ -1,7 +1,7 @@
 import argparse
 import os
 import subprocess
-from backend.core.config_loader import load_settings
+from backend.core.config_loader import load_config
 from scripts.shared.utils import build_frontend, frontend_is_built
 
 
@@ -9,11 +9,11 @@ def run_deploy(config_path: str) -> None:
     """Deploy the application to Systemd."""
     if os.geteuid() != 0:
         print("The deploy script must be run as root.")
-        print("Run script with \"sudo python3 scripts/deploy.py\"")
+        print("Run script with \"sudo .venv/bin/python scripts/deploy.py\"")
         return
 
-    settings = load_settings(config_path)
-    static_folder_name = settings.static_folder_name
+    config = load_config(config_path)
+    static_folder_name = config.static_folder_name
     if not frontend_is_built(static_folder_name):
         build_frontend(static_folder_name)
 
@@ -32,6 +32,7 @@ def run_deploy(config_path: str) -> None:
     print("System started")
     print("To get system status, run \"sudo systemctl status camerahub\"")
     print("To get last log lines, run \"journalctl --unit=camerahub -n 100 --no-pager\"")
+    print("To stop the deployment, run \"sudo systemctl stop camerahub\"")
 
 
 def get_systemd_file_path() -> str:

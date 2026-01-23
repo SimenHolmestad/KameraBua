@@ -9,7 +9,7 @@ from .current_image_tracker import (
 )
 from .image_name_formatter import change_extension_of_filename
 from backend.camera_service import camera_service
-from backend.core.settings import Settings
+from backend.core.config import Config
 
 MAX_THUMBNAIL_SIZE = (600, 600)
 DEFAULT_ALBUMS_DIR = "albums"
@@ -104,7 +104,10 @@ def get_relative_urls_of_all_images(
     album_name: str
 ) -> List[str]:
     _ensure_album_folders(base_path, albums_dir, album_name)
-    image_names = sorted(os.listdir(_images_path(base_path, albums_dir, album_name)))
+    image_names = sorted(
+        os.listdir(_images_path(base_path, albums_dir, album_name)),
+        reverse=True
+    )
     return [
         _relative_url(albums_dir, album_name, "images", name)
         for name in image_names
@@ -117,7 +120,10 @@ def get_relative_urls_of_all_thumbnails(
     album_name: str
 ) -> List[str]:
     _ensure_album_folders(base_path, albums_dir, album_name)
-    thumbnail_names = sorted(os.listdir(_thumbnails_path(base_path, albums_dir, album_name)))
+    thumbnail_names = sorted(
+        os.listdir(_thumbnails_path(base_path, albums_dir, album_name)),
+        reverse=True
+    )
     return [
         _relative_url(albums_dir, album_name, "thumbnails", name)
         for name in thumbnail_names
@@ -128,7 +134,7 @@ def capture_image_to_album(
     base_path: str,
     albums_dir: str,
     album_name: str,
-    settings: Settings,
+    config: Config,
     image_name_prefix: str = DEFAULT_IMAGE_NAME_PREFIX
 ) -> Tuple[str, str]:
     _ensure_album_folders(base_path, albums_dir, album_name)
@@ -136,8 +142,8 @@ def capture_image_to_album(
     images_path = _images_path(base_path, albums_dir, album_name)
     thumbnails_path = _thumbnails_path(base_path, albums_dir, album_name)
 
-    module_name = settings.camera.module
-    module_config = settings.camera.modules.get(module_name)
+    module_name = config.camera.module
+    module_config = config.camera.modules.get(module_name)
     if not module_config:
         raise camera_service.CameraModuleNotFoundError(
             f"Unknown camera module: {module_name}"
@@ -166,10 +172,10 @@ def capture_image_to_album(
         raw_image_name = change_extension_of_filename(next_image_name, raw_extension)
         raw_image_path = os.path.join(raw_images_path, raw_image_name)
         image_path = os.path.join(images_path, next_image_name)
-        camera_service.try_capture_image(settings, image_path, raw_image_path)
+        camera_service.try_capture_image(config, image_path, raw_image_path)
     else:
         image_path = os.path.join(images_path, next_image_name)
-        camera_service.try_capture_image(settings, image_path)
+        camera_service.try_capture_image(config, image_path)
 
     _create_thumbnail_for_image(images_path, thumbnails_path, next_image_name)
     increase_image_number(album_path, images_path, image_name_prefix)

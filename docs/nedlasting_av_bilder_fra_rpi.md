@@ -1,4 +1,4 @@
-[Tilbake til lesmeg](../lesmeg.md)
+[Tilbake til readme](../readme.md)
 
 # Nedlasting av bilder fra Raspberry PI
 For å laste ned bilder fra Raspberry PI kan du bruke `scp` (secure copy). Du kan kjøre `scp` fra din egen maskin slik for å hente bildene:
@@ -22,3 +22,6 @@ scp -r pi@10.0.0.37:~/projects/CameraHub/backend/static/albums/halloween ~/Docum
 ```
 
 For mer informasjon om `scp`, se [denne veiledningen](https://linuxize.com/post/how-to-use-scp-command-to-securely-transfer-files/).
+
+scp -r ./configs simen@10.0.0.26:~/CameraHub/configs
+-i ~/.ssh/id_ed25519.pub

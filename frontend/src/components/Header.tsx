@@ -24,7 +24,7 @@ const Header = () => {
   return (
     <AppBar position="relative">
       <Toolbar>
-        <Button component={Link} to={ "/" } className={classes.logo} color="inherit">
+        <Button component={Link} to={"/"} className={classes.logo} color="inherit">
           <CameraIcon className={classes.icon} />
           <Typography variant="h6" color="inherit" noWrap>
             CameraHub

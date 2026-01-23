@@ -6,12 +6,12 @@ from starlette.responses import FileResponse, Response
 from backend.routers.albums import construct_album_api_router
 from backend.routers.qr_codes import construct_qr_code_api_router
 from backend.album_service.album_service import DEFAULT_ALBUMS_DIR
-from backend.core.settings import Settings
+from backend.core.config import Config
 
 
 def create_app(
     static_folder_path: str,
-    settings: Settings,
+    config: Config,
     qr_codes: Any
 ) -> FastAPI:
     app = FastAPI(
@@ -25,8 +25,8 @@ def create_app(
     app.include_router(construct_album_api_router(
         static_folder_path,
         DEFAULT_ALBUMS_DIR,
-        settings,
-        forced_album_name=settings.albums.forced_album
+        config,
+        forced_album_name=config.albums.forced_album
     ), prefix="/albums")
 
     app.include_router(construct_qr_code_api_router(qr_codes), prefix="/qr_codes")

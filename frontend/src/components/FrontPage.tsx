@@ -8,6 +8,8 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
+import Header from './Header';
+import Footer from './Footer';
 import type { Theme } from '@mui/material/styles';
 import type { AvailableAlbumsResponse } from '../api';
 import type { Result } from './../server';
@@ -46,8 +48,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   },
   albumLink: {
-    textDecoration:"inherit",
-    color:"inherit",
+    textDecoration: "inherit",
+    color: "inherit",
     textTransform: "none"
   },
   albumLinkText: {
@@ -60,7 +62,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const Menu = () => {
+const FrontPage = () => {
   const albumData = useAlbumData();
   const classes = useStyles();
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -68,27 +70,41 @@ const Menu = () => {
   let albumList = null
   if (!albumData) {
     return (
-      <Grid container className={classes.loadingGrid} spacing={2} justifyContent="center">
-        <CircularProgress/>
-      </Grid>
+      <>
+        <Header />
+        <Grid container className={classes.loadingGrid} spacing={2} justifyContent="center">
+          <CircularProgress />
+        </Grid>
+        <Footer />
+      </>
     )
   } else if (isApiError(albumData)) {
     return (
-      <Container maxWidth="sm" className={classes.loadingGrid}>
-        <Typography variant="h6" align="center" color="error">
-          {albumData.error}
-        </Typography>
-      </Container>
+      <>
+        <Header />
+        <Container maxWidth="sm" className={classes.loadingGrid}>
+          <Typography variant="h6" align="center" color="error">
+            {albumData.error}
+          </Typography>
+        </Container>
+        <Footer />
+      </>
     )
   } else if (albumData.forced_album) {
-    return <Navigate to={"/album/" + albumData.forced_album} replace />
+    return (
+      <>
+        <Header />
+        <Navigate to={"/album/" + albumData.forced_album} replace />
+        <Footer />
+      </>
+    )
   } else {
     const availableAlbums = albumData.available_albums ?? []
     albumList = availableAlbums.map((albumName) => (
-      <Link key={albumName} to={ "/album/" + albumName } className={classes.albumLink}>
+      <Link key={albumName} to={"/album/" + albumName} className={classes.albumLink}>
         <Card className={classes.card}>
           <Typography variant="h3" align="center" color="textPrimary" className={classes.albumLinkText} paragraph>
-            { albumName }
+            {albumName}
           </Typography>
         </Card>
       </Link>
@@ -105,6 +121,7 @@ const Menu = () => {
 
   return (
     <>
+      <Header />
       <div className={classes.heroContent}>
         <Container maxWidth="sm">
           <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
@@ -116,16 +133,17 @@ const Menu = () => {
         </Container>
       </div>
       <Container maxWidth="md" className={classes.albumCardContainer}>
-        { albumList }
+        {albumList}
         <Card className={classes.card} onClick={handleClickOpen}>
           <Typography variant="h3" align="center" color="textPrimary" className={classes.albumLinkText} paragraph>
             Create new album
           </Typography>
         </Card>
       </Container>
-      <NewAlbumDialog open={dialogOpen} handleClose={handleClose}/>
+      <NewAlbumDialog open={dialogOpen} handleClose={handleClose} />
+      <Footer />
     </>
   );
 };
 
-export default Menu;
+export default FrontPage;

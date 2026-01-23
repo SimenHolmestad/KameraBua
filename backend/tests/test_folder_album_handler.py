@@ -4,7 +4,7 @@ import unittest
 import tempfile
 from backend.album_service import album_service
 from backend.album_service.album_service import AlbumNotFoundError
-from .camera_modules_for_testing import create_fast_dummy_settings
+from .camera_modules_for_testing import create_fast_dummy_config
 from .test_utils import temp_dir_relpath
 
 
@@ -77,9 +77,9 @@ class FolderAlbumHandlerTestCase(unittest.TestCase):
 
     def test_ensure_all_thumbnails_correct(self) -> None:
         album_service.get_or_create_album(self.base_path, self.albums_dir, "test_album")
-        settings = create_fast_dummy_settings()
-        album_service.capture_image_to_album(self.base_path, self.albums_dir, "test_album", settings)
-        album_service.capture_image_to_album(self.base_path, self.albums_dir, "test_album", settings)
+        config = create_fast_dummy_config()
+        album_service.capture_image_to_album(self.base_path, self.albums_dir, "test_album", config)
+        album_service.capture_image_to_album(self.base_path, self.albums_dir, "test_album", config)
 
         thumbnails_path = os.path.join(
             self.test_dir_name,

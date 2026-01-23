@@ -3,19 +3,19 @@ import copy
 from pydantic import BaseModel, Field, model_validator
 
 
-class WifiSettings(BaseModel):
-    enabled: bool = True
-    name: str = ""
+class WifiConfig(BaseModel):
+    enabled: bool = False
+    wifi_name: str = ""
     protocol: str = ""
     password: str = ""
     description: str = ""
 
     @model_validator(mode="after")
-    def _validate_wifi_fields(self) -> "WifiSettings":
+    def _validate_wifi_fields(self) -> "WifiConfig":
         if self.enabled:
             missing = [
                 key for key, value in (
-                    ("name", self.name),
+                    ("wifi_name", self.wifi_name),
                     ("protocol", self.protocol),
                     ("password", self.password),
                     ("description", self.description),
@@ -27,9 +27,8 @@ class WifiSettings(BaseModel):
         return self
 
 
-class QrCodeSettings(BaseModel):
+class QrCodeConfig(BaseModel):
     use_center_images: bool = True
-    wifi: WifiSettings = Field(default_factory=WifiSettings)
 
 
 DEFAULT_CAMERA_MODULES: Dict[str, Dict[str, Any]] = {
@@ -61,7 +60,7 @@ DEFAULT_CAMERA_MODULES: Dict[str, Dict[str, Any]] = {
 }
 
 
-class CameraSettings(BaseModel):
+class CameraConfig(BaseModel):
     module: str = "dummy"
     options: Dict[str, Any] = Field(default_factory=dict)
     modules: Dict[str, Dict[str, Any]] = Field(
@@ -69,12 +68,13 @@ class CameraSettings(BaseModel):
     )
 
 
-class AlbumSettings(BaseModel):
+class AlbumConfig(BaseModel):
     forced_album: Optional[str] = None
 
 
-class Settings(BaseModel):
+class Config(BaseModel):
     static_folder_name: str = "static"
-    albums: AlbumSettings = Field(default_factory=AlbumSettings)
-    camera: CameraSettings = Field(default_factory=CameraSettings)
-    qr_codes: QrCodeSettings = Field(default_factory=QrCodeSettings)
+    albums: AlbumConfig = Field(default_factory=AlbumConfig)
+    camera: CameraConfig = Field(default_factory=CameraConfig)
+    qr_codes: QrCodeConfig = Field(default_factory=QrCodeConfig)
+    wifi_qr_code: WifiConfig = Field(default_factory=WifiConfig)

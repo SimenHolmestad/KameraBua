@@ -1,19 +1,20 @@
 {
   "static_folder_name": "static",
   "albums": {
-    "forced_album": null
+    "forced_album": null,
+    "album_base_path": "static/albums"
   },
   "camera": {
     "module": "dummy"
   },
   "qr_codes": {
-    "use_center_images": true,
-    "wifi": {
-      "enabled": true,
-      "name": "my_wifi_SSID",
-      "protocol": "WPA/WPA2",
-      "password": "my_super_secret_password",
-      "description": "Scan qr code to connect!"
-    }
+    "use_center_images": true
+  },
+  "wifi_qr_code": {
+    "enabled": false,
+    "wifi_name": "my_wifi_SSID",
+    "protocol": "WPA/WPA2",
+    "password": "my_super_secret_password",
+    "description": "Scan qr code to connect!"
   }
 }

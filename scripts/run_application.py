@@ -1,12 +1,12 @@
 import argparse
 import os
 import uvicorn
-from backend.core.config_loader import load_settings
-from backend.core.settings import Settings
+from backend.core.config_loader import load_config
+from backend.core.config import Config
 from scripts.shared.utils import (
     PRODUCTION_PORT,
     build_frontend,
-    create_app_with_settings,
+    create_app_with_config,
     find_ip_address_for_device,
     frontend_is_built,
     get_url_for_qr_code_page,
@@ -14,15 +14,15 @@ from scripts.shared.utils import (
 )
 
 
-def run_application(settings: Settings) -> None:
-    if not frontend_is_built(settings.static_folder_name):
-        build_frontend(settings.static_folder_name)
+def run_application(config: Config) -> None:
+    if not frontend_is_built(config.static_folder_name):
+        build_frontend(config.static_folder_name)
 
     host_ip = find_ip_address_for_device()
-    qr_code_url = get_url_for_qr_code_page(host_ip, PRODUCTION_PORT, settings.albums.forced_album)
+    qr_code_url = get_url_for_qr_code_page(host_ip, PRODUCTION_PORT, config.albums.forced_album)
     print("Url for qr codes:", qr_code_url)
 
-    app = create_app_with_settings(settings, host_ip, PRODUCTION_PORT)
+    app = create_app_with_config(config, host_ip, PRODUCTION_PORT)
 
     browser_process = open_webpage_in_device_browser(qr_code_url)
     uvicorn.run(app, host=host_ip, port=PRODUCTION_PORT)
@@ -42,8 +42,8 @@ def main() -> None:
     )
     args = parser.parse_args()
     config_path = args.config_path or os.path.join("configs", "example_config.json")
-    settings = load_settings(config_path)
-    run_application(settings)
+    config = load_config(config_path)
+    run_application(config)
 
 
 if __name__ == '__main__':

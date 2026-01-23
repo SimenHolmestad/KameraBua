@@ -1,4 +1,4 @@
-[Tilbake til lesmeg](../lesmeg.md)
+[Tilbake til readme](../readme.md)
 
 # Oppsett av ekstra skjermer/monitorer
 CameraHub tilbyr noen "skjulte sider" som ikke er tilgjengelige fra brukergrensesnittet. Disse sidene er ment å vises på en skjerm eller prosjektor nær kameraet. Du som photobooth-operator kan velge hvilke sider som skal vises til brukerne.

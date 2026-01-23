@@ -5,7 +5,9 @@ import ImageDetail from './ImageDetail'
 import CircularProgress from '@mui/material/CircularProgress';
 import { makeStyles } from '@mui/styles';
 import Grid from '@mui/material/Grid';
-import { Route, Routes, useParams } from 'react-router-dom';
+import Header from './Header';
+import { useParams } from 'react-router-dom';
+import Footer from './Footer';
 import type { Theme } from '@mui/material/styles';
 import type { AlbumInfoResponse } from '../api';
 
@@ -16,7 +18,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const AlbumPage = () => {
+type AlbumPageView = 'detail' | 'overview';
+
+type AlbumPageProps = {
+  view?: AlbumPageView;
+};
+
+const AlbumPage = ({ view = 'overview' }: AlbumPageProps) => {
   const { albumName } = useParams<{ albumName: string }>();
   const [albumData, setAlbumData] = useState<AlbumInfoResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -42,6 +50,7 @@ const AlbumPage = () => {
       }
       setErrorMessage(null);
       setAlbumData(albumInfo);
+      console.log(albumInfo);
     }
 
     gather_album_data()
@@ -54,14 +63,24 @@ const AlbumPage = () => {
   }, [albumName]);
 
   if (errorMessage) {
-    return <h1>ERROR: {errorMessage}</h1>
+    return (
+      <>
+        <Header />
+        <h1>ERROR: {errorMessage}</h1>
+        <Footer />
+      </>
+    )
   }
 
   if (!albumData) {
     return (
-      <Grid container className={classes.loadingGrid} spacing={2} justifyContent="center">
-        <CircularProgress />
-      </Grid>
+      <>
+        <Header />
+        <Grid container className={classes.loadingGrid} spacing={2} justifyContent="center">
+          <CircularProgress />
+        </Grid>
+        <Footer />
+      </>
     )
   }
 
@@ -82,12 +101,14 @@ const AlbumPage = () => {
       setImageIndex={setImageIndex} />
   );
 
+  const pageContent = view === 'detail' ? imageDetail : albumOverview;
+
   return (
-    <Routes>
-      <Route path="detail" element={imageDetail} />
-      <Route index element={albumOverview} />
-      <Route path="*" element={albumOverview} />
-    </Routes>
+    <>
+      <Header />
+      {pageContent}
+      <Footer />
+    </>
   )
 };
 
