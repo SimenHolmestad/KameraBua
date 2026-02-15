@@ -1,13 +1,13 @@
 # Kjør applikasjonen
 
-## Lag en config-fil
+## Lag en .env-fil
 
-Du finner en eksempel fil [her](../configs/example_config.json).
-Formatet på config-fil kan finnes [her](../backend/core/config.py).
+Du finner en eksempel fil [her](../.env.example).
+Formatet på innstillinger kan finnes [her](../backend/core/config.py).
 
-Det kan være fint å redigere config-filer lokalt på maskinen og gjøre følgende for å kopiere til RPI:
+Det kan være fint å redigere .env-filen lokalt på maskinen og gjøre følgende for å kopiere til RPI:
 ```
-scp -r ./configs <brukernavn>@<ip-adresse>:~/CameraHub/configs
+scp ./.env <brukernavn>@<ip-adresse>:~/CameraHub/.env
 ```
 
 Deretter kan man kjøre med:
@@ -15,12 +15,12 @@ Deretter kan man kjøre med:
 ssh <brukernavn>@<ip-adresse>
 cd ~/CameraHub
 source .venv/bin/activate
-sudo .venv/bin/python -m scripts.deploy --config ./configs/<config_fil>.json
+sudo .venv/bin/python -m scripts.deploy --env-file ./.env
 ```
 
 Man kan også redeploye med:
 ```
-sudo .venv/bin/python -m scripts.update_and_redeploy --config ./configs/<config_fil>.json
+sudo .venv/bin/python -m scripts.update_and_redeploy --env-file ./.env
 ```
 
 # Neste steg

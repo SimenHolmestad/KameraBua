@@ -3,7 +3,7 @@ import tempfile
 import os
 from fastapi.testclient import TestClient
 from backend.app import create_app
-from backend.album_service import album_service
+from backend.album_service.album_service import AlbumService
 from scripts.shared import qr_code_utils
 from .camera_modules_for_testing import create_fast_dummy_config, create_faulty_dummy_config
 from .test_utils import temp_dir_relpath
@@ -12,24 +12,25 @@ from .test_utils import temp_dir_relpath
 class AlbumApiTestCase(unittest.TestCase):
     def setUp(self) -> None:
         # Creates a temporary static dir which is deleted after every test
-        self.static_dir = tempfile.TemporaryDirectory(dir=".")
+        self.static_dir = tempfile.TemporaryDirectory(dir="backend/static")
         self.static_dir_name = temp_dir_relpath(self.static_dir)
-        self.album_dir_path = os.path.join(self.static_dir_name, "albums")
-        self.albums_dir_name = "albums"
+        self.albums_dir_path = os.path.join(self.static_dir_name, "albums")
 
-        self.config = create_fast_dummy_config()
+        self.config = create_fast_dummy_config(self.albums_dir_path)
         self.create_app_and_client_with_config(self.config)
 
     def create_app_and_client_with_config(self, config) -> None:
         self.config = config
+        self.album_service = AlbumService(config.albums, config.camera)
         qr_code_context = qr_code_utils.create_qr_code_context(self.static_dir_name)
         app = create_app(self.static_dir_name, config, qr_code_utils.get_qr_codes(qr_code_context))
         self.test_client = TestClient(app)
 
     def create_app_and_client_with_forced_album(self, forced_album_name) -> None:
-        config = create_fast_dummy_config()
+        config = create_fast_dummy_config(self.albums_dir_path)
         config.albums.forced_album = forced_album_name
         self.config = config
+        self.album_service = AlbumService(config.albums, config.camera)
         qr_code_context = qr_code_utils.create_qr_code_context(self.static_dir_name)
         app = create_app(self.static_dir_name, config, qr_code_utils.get_qr_codes(qr_code_context))
         self.test_client = TestClient(app)
@@ -39,15 +40,10 @@ class AlbumApiTestCase(unittest.TestCase):
 
     def create_temp_album(self, album_name, description="") -> None:
         """Create an album with the specified name and description."""
-        album_service.get_or_create_album(self.static_dir_name, self.albums_dir_name, album_name, description)
+        self.album_service.get_or_create_album(album_name, description)
 
     def add_dummy_image_file_to_album(self, album_name) -> None:
-        album_service.capture_image_to_album(
-            self.static_dir_name,
-            self.albums_dir_name,
-            album_name,
-            self.config
-        )
+        self.album_service.capture_image_to_album(album_name)
 
     def test_no_available_albums_when_there_are_none(self) -> None:
         response = self.test_client.get("/albums/")
@@ -115,12 +111,8 @@ class AlbumApiTestCase(unittest.TestCase):
             json=PARAMS
         )
 
-        self.assertTrue(album_service.album_exists(self.static_dir_name, self.albums_dir_name, "album1"))
-        description = album_service.get_album_description(
-            self.static_dir_name,
-            self.albums_dir_name,
-            "album1"
-        )
+        self.assertTrue(self.album_service.album_exists("album1"))
+        description = self.album_service.get_album_description("album1")
         self.assertEqual(description, "A very nice album indeed")
 
     def test_create_album_without_album_name_parameter_gives_error(self) -> None:
@@ -139,14 +131,10 @@ class AlbumApiTestCase(unittest.TestCase):
 
         self.assertEqual(json_response, {'album_name': 'album1', 'album_url': '/albums/album1'})
         self.assertEqual(
-            album_service.get_available_album_names(self.static_dir_name, self.albums_dir_name),
+            self.album_service.get_available_album_names(),
             ["album1"]
         )
-        description = album_service.get_album_description(
-            self.static_dir_name,
-            self.albums_dir_name,
-            "album1"
-        )
+        description = self.album_service.get_album_description("album1")
         self.assertEqual(description, "This is definitely a very nice album")
 
     def test_get_info_for_nonexistent_album(self) -> None:
@@ -237,7 +225,7 @@ class AlbumApiTestCase(unittest.TestCase):
         })
 
     def test_unsuccessful_image_capture_response(self) -> None:
-        faulty_config = create_faulty_dummy_config()
+        faulty_config = create_faulty_dummy_config(self.albums_dir_path)
         self.create_app_and_client_with_config(faulty_config)
         self.create_temp_album("album1")
         response = self.test_client.post("/albums/album1")
@@ -246,7 +234,7 @@ class AlbumApiTestCase(unittest.TestCase):
         self.assertEqual(json_response, {'error': 'This is a test error message'})
 
     def test_camera_is_not_busy_after_failed_capture(self) -> None:
-        faulty_config = create_faulty_dummy_config()
+        faulty_config = create_faulty_dummy_config(self.albums_dir_path)
         self.create_app_and_client_with_config(faulty_config)
         self.create_temp_album("album1")
 

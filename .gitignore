@@ -25,3 +25,5 @@ node_modules/
 
 configs/*
 !configs/example_config.json
+
+.env

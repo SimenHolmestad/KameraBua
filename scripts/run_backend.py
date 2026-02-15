@@ -11,18 +11,21 @@ from scripts.shared.utils import (
 )
 
 
+def get_backend_port() -> int:
+    port_override = os.getenv("CAMERAHUB_BACKEND_PORT")
+    if not port_override:
+        return DEBUG_PORT
+
+    try:
+        return int(port_override)
+    except ValueError:
+        return DEBUG_PORT
+
+
 def run_backend(config: Config) -> None:
     """This should only need to be done when working on or testing the frontend."""
     print("Running the backend in debug mode. Start the frontend in a separate terminal window")
-
-    port_override = os.getenv("CAMERAHUB_BACKEND_PORT")
-    if port_override:
-        try:
-            port = int(port_override)
-        except ValueError:
-            port = DEBUG_PORT
-    else:
-        port = DEBUG_PORT
+    port = get_backend_port()
 
     host_ip = find_ip_address_for_device()
     qr_code_url = get_url_for_qr_code_page(host_ip, port, config.albums.forced_album)
@@ -35,13 +38,13 @@ def run_backend(config: Config) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run CameraHub backend.")
     parser.add_argument(
-        "config",
-        nargs="?",
-        default=os.path.join("configs", "example_config.json"),
-        help="Path to a config file."
+        "--env-file",
+        dest="env_file",
+        default=".env",
+        help="Path to a .env file."
     )
     args = parser.parse_args()
-    config = load_config(args.config)
+    config = load_config(args.env_file)
     run_backend(config)
 
 

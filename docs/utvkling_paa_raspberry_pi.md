@@ -18,12 +18,12 @@ git checkout <branch_name>
 Du kan nå kjøre følgende for å teste det du har commitet opp:
 
 ```
-git pull && sudo .venv/bin/python -m scripts.update_and_redeploy --config ./configs/<config_fil>.json
+git pull && sudo .venv/bin/python -m scripts.update_and_redeploy --env-file ./.env
 ```
 
 Hvis du vet at du kun skal gjøre backend-endringer går det mye fortere å gjøre:
 ```
-git pull && sudo .venv/bin/python -m scripts.update_and_redeploy --config ./configs/<config_fil>.json --skip-frontend-build
+git pull && sudo .venv/bin/python -m scripts.update_and_redeploy --env-file ./.env --skip-frontend-build
 ```
 
 Med `git commit --amend` går dette ganske fort.

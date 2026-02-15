@@ -11,7 +11,7 @@ from scripts.deploy import (
 from scripts.shared.utils import build_frontend
 
 
-def run_update_and_redeploy(config_path: str, skip_frontend_build: bool) -> None:
+def run_update_and_redeploy(env_file: str, skip_frontend_build: bool) -> None:
     if os.geteuid() != 0:
         print("The update and redploy script must be run as root.")
         print("Run script with \"sudo .venv/bin/python -m scripts.update_and_redeploy")
@@ -19,13 +19,13 @@ def run_update_and_redeploy(config_path: str, skip_frontend_build: bool) -> None
 
     subprocess.run("git reset --hard HEAD", shell=True)
     subprocess.run("git pull", shell=True)
-    config = load_config(config_path)
+    config = load_config(env_file)
     static_folder_name = config.static_folder_name
     if not skip_frontend_build:
         build_frontend(static_folder_name)
 
     systemd_file_path = get_systemd_file_path()
-    systemd_file_content = create_systemd_config_file_content(config_path)
+    systemd_file_content = create_systemd_config_file_content(env_file)
     with open(systemd_file_path, "w") as f:
         f.write(systemd_file_content)
 
@@ -44,9 +44,9 @@ def run_update_and_redeploy(config_path: str, skip_frontend_build: bool) -> None
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Update repo and redeploy CameraHub.")
     parser.add_argument(
-        "--config",
-        default=os.path.join("configs", "example_config.json"),
-        help="Path to config file to use for the systemd service."
+        "--env-file",
+        default=os.path.join(".env"),
+        help="Path to .env file to use for the systemd service."
     )
     parser.add_argument(
         "--skip-frontend-build",
@@ -54,4 +54,4 @@ if __name__ == "__main__":
         help="Skip rebuilding frontend assets."
     )
     args = parser.parse_args()
-    run_update_and_redeploy(args.config, args.skip_frontend_build)
+    run_update_and_redeploy(args.env_file, args.skip_frontend_build)

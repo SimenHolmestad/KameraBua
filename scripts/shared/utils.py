@@ -6,7 +6,7 @@ import subprocess
 from typing import Any, Optional
 from typing import Mapping
 from scripts.shared import qr_code_utils
-from backend.album_service import album_service
+from backend.album_service.album_service import AlbumService
 from backend.app import create_app
 from backend.core.config import Config
 DEBUG_PORT = 3000
@@ -78,12 +78,11 @@ def get_url_for_qr_code_page(host_ip: str, port: int, forced_album: Optional[str
 
 
 def ensure_forced_album_is_created(
-    base_path: str,
-    albums_dir: str,
+    service: AlbumService,
     forced_album: Optional[str]
 ) -> None:
     if forced_album:
-        album_service.get_or_create_album(base_path, albums_dir, forced_album)
+        service.get_or_create_album(forced_album)
 
 
 def create_app_with_config(
@@ -92,8 +91,8 @@ def create_app_with_config(
     port: int
 ) -> Any:
     qr_codes = create_qr_codes(config, host_ip, port)
-    base_path = static_folder_path(config.static_folder_name)
-    ensure_forced_album_is_created(base_path, "albums", config.albums.forced_album)
+    service = AlbumService(config.albums, config.camera)
+    ensure_forced_album_is_created(service, config.albums.forced_album)
 
     return create_app(
         static_folder_path(config.static_folder_name),

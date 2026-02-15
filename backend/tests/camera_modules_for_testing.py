@@ -1,16 +1,19 @@
 from backend.core.config import Config
 
 
-def _base_config() -> Config:
+def _base_config(albums_dir: str) -> Config:
     return Config.model_validate({
+        "albums": {
+            "albums_dir": albums_dir
+        },
         "wifi_qr_code": {
             "enabled": False
         }
     })
 
 
-def create_fast_dummy_config() -> Config:
-    config = _base_config()
+def create_fast_dummy_config(albums_dir: str) -> Config:
+    config = _base_config(albums_dir)
     config.camera.module = "dummy"
     config.camera.options = {
         "width": 120,
@@ -22,18 +25,11 @@ def create_fast_dummy_config() -> Config:
     return config
 
 
-def create_faulty_dummy_config() -> Config:
-    config = create_fast_dummy_config()
+def create_faulty_dummy_config(albums_dir: str) -> Config:
+    config = create_fast_dummy_config(albums_dir)
     config.camera.options.update({
         "should_fail": True,
         "error_message": "This is a test error message",
         "verbose_errors": False
     })
-    return config
-
-
-def create_dummy_raw_config() -> Config:
-    config = create_fast_dummy_config()
-    config.camera.modules["dummy"]["needs_raw_file_transfer"] = True
-    config.camera.modules["dummy"]["raw_file_extension"] = ".cr2"
     return config

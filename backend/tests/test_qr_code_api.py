@@ -1,5 +1,6 @@
 import unittest
 import tempfile
+import os
 from fastapi.testclient import TestClient
 from backend.app import create_app
 from scripts.shared import qr_code_utils
@@ -10,9 +11,9 @@ from .test_utils import temp_dir_relpath
 class QrCodeApiTestCase(unittest.TestCase):
     def setUp(self) -> None:
         # Create a temporary static dir which is deleted after every test
-        self.static_dir = tempfile.TemporaryDirectory(dir=".")
+        self.static_dir = tempfile.TemporaryDirectory(dir="backend/static")
         self.static_dir_name = temp_dir_relpath(self.static_dir)
-        config = create_fast_dummy_config()
+        config = create_fast_dummy_config(os.path.join(self.static_dir_name, "albums"))
 
         self.qr_code_context = qr_code_utils.create_qr_code_context(self.static_dir_name)
         app = create_app(

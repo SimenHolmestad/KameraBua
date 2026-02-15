@@ -1,11 +1,11 @@
 import argparse
 import os
-from backend.album_service import album_service
+from backend.album_service.album_service import AlbumService
 from backend.core.config_loader import load_config
 from backend.core.config import Config
 
 
-def run_try_camera_module(config: Config, album_dir_name: str = "test_albums") -> None:
+def run_try_camera_module(config: Config) -> None:
     """Script for testing a camera module for debugging purposes.
 
     The script will create a folder named `test_albums` in the root
@@ -13,32 +13,27 @@ def run_try_camera_module(config: Config, album_dir_name: str = "test_albums") -
     created.
 
     """
-    ensure_album_directory_exists(album_dir_name)
-    base_path = "."
-
     camera_module_name = config.camera.module
+    service = AlbumService(config.albums, config.camera)
+    album_dir_name = config.albums.albums_dir
     album_name = camera_module_name + "_album"
-    album_service.get_or_create_album(base_path, album_dir_name, album_name)
+    service.get_or_create_album(album_name)
 
     print(f"Capturing image with {camera_module_name} module to {album_dir_name}/{album_name}")
-    album_service.capture_image_to_album(base_path, album_dir_name, album_name, config)
-
-
-def ensure_album_directory_exists(album_dir_name: str) -> None:
-    if not os.path.exists(album_dir_name):
-        os.makedirs(album_dir_name)
+    service.capture_image_to_album(album_name)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Try camera module capture.")
     parser.add_argument(
-        "config",
-        nargs="?",
-        default=os.path.join("configs", "example_config.json"),
-        help="Path to a config file."
+        "--env-file",
+        dest="env_file",
+        default=None,
+        help="Path to a .env file."
     )
     args = parser.parse_args()
-    config = load_config(args.config)
+    env_file = args.env_file or os.path.join(".env")
+    config = load_config(env_file)
     run_try_camera_module(config)
 
 

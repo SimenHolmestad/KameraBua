@@ -35,14 +35,14 @@ def run_application(config: Config) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run CameraHub application.")
     parser.add_argument(
-        "--config",
-        dest="config_path",
+        "--env-file",
+        dest="env_file",
         default=None,
-        help="Path to a config file."
+        help="Path to a .env file."
     )
     args = parser.parse_args()
-    config_path = args.config_path or os.path.join("configs", "example_config.json")
-    config = load_config(config_path)
+    env_file = args.env_file or os.path.join(".env")
+    config = load_config(env_file)
     run_application(config)
 
 

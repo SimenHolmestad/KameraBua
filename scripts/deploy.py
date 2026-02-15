@@ -5,19 +5,19 @@ from backend.core.config_loader import load_config
 from scripts.shared.utils import build_frontend, frontend_is_built
 
 
-def run_deploy(config_path: str) -> None:
+def run_deploy(env_file: str) -> None:
     """Deploy the application to Systemd."""
     if os.geteuid() != 0:
         print("The deploy script must be run as root.")
         print("Run script with \"sudo .venv/bin/python scripts/deploy.py\"")
         return
 
-    config = load_config(config_path)
+    config = load_config(env_file)
     static_folder_name = config.static_folder_name
     if not frontend_is_built(static_folder_name):
         build_frontend(static_folder_name)
 
-    systemd_file_content = create_systemd_config_file_content(config_path)
+    systemd_file_content = create_systemd_config_file_content(env_file)
     print("--------Systemd file is--------")
     print(systemd_file_content)
     print("-------------------------------")
@@ -51,10 +51,10 @@ def start_or_restart_systemd_process() -> None:
     subprocess.run("sudo systemctl restart camerahub", shell=True)
 
 
-def create_systemd_config_file_content(config_path: str) -> str:
+def create_systemd_config_file_content(env_file: str) -> str:
     username = os.environ["SUDO_USER"]
     working_directory = os.getcwd()
-    resolved_config_path = _resolve_config_path(working_directory, config_path)
+    resolved_env_file = _resolve_env_file_path(working_directory, env_file)
 
     content_lines = [
         "[Unit]",
@@ -64,7 +64,7 @@ def create_systemd_config_file_content(config_path: str) -> str:
         "[Service]",
         f"User={username}",
         f"WorkingDirectory={working_directory}",
-        f"ExecStart={working_directory}/.venv/bin/python -m scripts.run_application --config {resolved_config_path}",
+        f"ExecStart={working_directory}/.venv/bin/python -m scripts.run_application --env-file {resolved_env_file}",
         "Restart=always",
         "",
         "[Install]",
@@ -83,18 +83,18 @@ def ensure_static_permissions(static_folder_name: str) -> None:
         check=True
     )
 
-def _resolve_config_path(working_directory: str, config_path: str) -> str:
-    if os.path.isabs(config_path):
-        return config_path
-    return os.path.join(working_directory, config_path)
+def _resolve_env_file_path(working_directory: str, env_file: str) -> str:
+    if os.path.isabs(env_file):
+        return env_file
+    return os.path.join(working_directory, env_file)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Deploy CameraHub as a systemd service.")
     parser.add_argument(
-        "--config",
-        default=os.path.join("configs", "example_config.json"),
-        help="Path to config file to use for the systemd service."
+        "--env-file",
+        default=os.path.join(".env"),
+        help="Path to .env file to use for the systemd service."
     )
     args = parser.parse_args()
-    run_deploy(args.config)
+    run_deploy(args.env_file)

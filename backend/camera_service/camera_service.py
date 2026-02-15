@@ -63,7 +63,10 @@ def _get_module_config(config: Config, module_name: str) -> Dict[str, Any]:
 
 def _get_capture_handler(module_name: str) -> Any:
     handlers = {
-        "dummy": _capture_dummy_image,
+        "dummy": lambda options, _module_config, image_path, _raw_file_path: _capture_dummy_image(
+            options,
+            image_path
+        ),
         "rpicam": _capture_rpicam_image,
         "dslr_jpg": _capture_dslr_jpg_image,
         "dslr_raw": _capture_dslr_raw_image,
@@ -76,9 +79,7 @@ def _get_capture_handler(module_name: str) -> Any:
 
 def _capture_dummy_image(
     options: Dict[str, Any],
-    module_config: Dict[str, Any],
-    image_path: str,
-    raw_file_path: Optional[str]
+    image_path: str
 ) -> None:
     if options.get("should_fail"):
         raise ImageCaptureError(options.get("error_message", "This is a test error message"))
@@ -105,9 +106,6 @@ def _capture_dummy_image(
         )
 
     plt.imsave(image_path, image)
-
-    if module_config.get("needs_raw_file_transfer") and raw_file_path:
-        _copy_file(image_path, raw_file_path)
 
 
 def _add_random_circle_to_image(
