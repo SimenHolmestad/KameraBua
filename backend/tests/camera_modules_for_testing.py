@@ -1,45 +1,31 @@
-from shutil import copyfile
-from backend.camera_modules.dummy_camera_module import DummyCameraModule
-from backend.camera_modules.base_camera_module import BaseCameraModule, ImageCaptureError
+from backend.core.config import Config
 
 
-def create_fast_dummy_module():
-    """Creates a faster dummy module for quicker test runs"""
-    return DummyCameraModule(
-        width=120,
-        height=80,
-        number_of_circles=5,
-        min_circle_radius=5,
-        max_circle_radius=15
-    )
+def _base_config(albums_dir: str) -> Config:
+    return Config.model_validate({
+        "albums": {
+            "albums_dir": albums_dir
+        },
+        "wifi_qr_code": {
+            "enabled": False
+        }
+    })
 
 
-class FaultyCameraModule(BaseCameraModule):
-    """A camera module to test error handling functionality"""
-
-    def __init__(self, should_fail=True):
-        super().__init__(".jpg", verbose_errors=False)
-        self.should_fail = should_fail
-        self.dummy_module = create_fast_dummy_module()
-
-    def capture_image(self, image_path, raw_file_path=None):
-        if self.should_fail:
-            raise ImageCaptureError("This is a test error message")
-
-        self.dummy_module.try_capture_image(image_path)
+def create_fast_dummy_config(albums_dir: str) -> Config:
+    config = _base_config(albums_dir)
+    config.camera.camera_type = "dummy"
+    config.camera.dummy_config.width = 120
+    config.camera.dummy_config.height = 80
+    config.camera.dummy_config.number_of_circles = 5
+    config.camera.dummy_config.min_circle_radius = 5
+    config.camera.dummy_config.max_circle_radius = 15
+    return config
 
 
-class DummyRawModule(BaseCameraModule):
-    """Dummy module which also creates dummy raw files.
-
-    The module uses another dummy module for creating the image file
-    before renaming and moving the file to the raw directory.
-    """
-
-    def __init__(self):
-        super().__init__(".png", needs_raw_file_transfer=True, raw_file_extension=".cr2")
-        self.dummy_module = create_fast_dummy_module()
-
-    def capture_image(self, image_path, raw_file_path):
-        self.dummy_module.try_capture_image(image_path)
-        copyfile(image_path, raw_file_path)
+def create_faulty_dummy_config(albums_dir: str) -> Config:
+    config = create_fast_dummy_config(albums_dir)
+    config.camera.dummy_config.should_fail = True
+    config.camera.dummy_config.error_message = "This is a test error message"
+    config.camera.verbose_errors = False
+    return config

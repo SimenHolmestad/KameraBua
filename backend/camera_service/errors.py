@@ -1,0 +1,2 @@
+class ImageCaptureError(RuntimeError):
+    pass

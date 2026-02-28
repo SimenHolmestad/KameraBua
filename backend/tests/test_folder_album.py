@@ -2,23 +2,30 @@ import os
 import shutil
 import unittest
 import tempfile
-from backend.album_storage.folder_album import FolderAlbum
-from backend.album_storage.folder import Folder
-from .camera_modules_for_testing import create_fast_dummy_module, DummyRawModule
+from backend.album_service.album_service import AlbumService
+from backend.camera_service import CameraService
+from backend.core.config import AlbumConfig, CameraConfig
+from .camera_modules_for_testing import create_fast_dummy_config
+from .test_utils import temp_dir_relpath
 
 
 class FolderAlbumTestCase(unittest.TestCase):
-    def setUp(self):
-        self.test_dir = tempfile.TemporaryDirectory(dir=".")
-        self.test_dir_name = self.test_dir.name.split("./")[1]
-        folder_for_album = Folder(".", self.test_dir_name)
-        self.album = FolderAlbum("test_album", folder_for_album)
+    def setUp(self) -> None:
+        self.test_dir = tempfile.TemporaryDirectory(dir="backend/static")
+        self.test_dir_name = temp_dir_relpath(self.test_dir)
+        self.albums_dir = self.test_dir_name
+        self.album_name = "test_album"
+        self.album_service = AlbumService(
+            AlbumConfig(albums_dir=self.albums_dir),
+            CameraService(CameraConfig())
+        )
+        self.album_service.get_or_create_album(self.album_name)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.test_dir.cleanup()  # Remove test_dir from file system
 
-    def add_dummy_image_file_to_album(self, album_name, image_name):
-        """Create a dummy image file with the specified name to the specified album. """
+    def add_dummy_image_file_to_album(self, album_name, image_name) -> None:
+        """Create a dummy image file with the specified name to the specified album."""
         path_to_image_file = os.path.join(
             self.test_dir_name,
             album_name,
@@ -27,66 +34,95 @@ class FolderAlbumTestCase(unittest.TestCase):
         )
         open(path_to_image_file, 'a').close()
 
-    def create_current_image_number_file(self, album_name, current_image_number):
+    def create_current_image_number_file(self, album_name, current_image_number) -> None:
         current_image_number_file_path = os.path.join(
             self.test_dir_name,
             album_name,
-            ".current_image_number.txt"
+            ".image_number.txt"
         )
 
-        f = open(current_image_number_file_path, "w")
-        f.write(str(current_image_number))
-        f.close()
+        with open(current_image_number_file_path, "w") as file_handle:
+            file_handle.write(str(current_image_number))
 
-    def test_creating_album_creates_album_folder(self):
+    def configure_camera(self, camera_config: CameraConfig) -> None:
+        self.album_service = AlbumService(
+            AlbumConfig(albums_dir=self.albums_dir),
+            CameraService(camera_config)
+        )
+
+    def test_creating_album_creates_album_folder(self) -> None:
         expected_album_folder_path = os.path.join(
             self.test_dir_name,
-            "test_album"
+            self.album_name
         )
         self.assertTrue(os.path.exists(expected_album_folder_path))
 
-    def test_creating_album_creates_images_folder(self):
+    def test_creating_album_creates_images_folder(self) -> None:
         expected_images_folder_path = os.path.join(
             self.test_dir_name,
-            "test_album",
+            self.album_name,
             "images"
         )
         self.assertTrue(os.path.exists(expected_images_folder_path))
 
-    def test_creating_album_creates_thumbnails_folder(self):
+    def test_creating_album_creates_thumbnails_folder(self) -> None:
         expected_thumbnails_folder_path = os.path.join(
             self.test_dir_name,
-            "test_album",
+            self.album_name,
             "thumbnails"
         )
         self.assertTrue(os.path.exists(expected_thumbnails_folder_path))
 
-    def test_newly_created_album_has_no_description(self):
-        self.assertEqual(self.album.get_album_description(), "")
+    def test_newly_created_album_has_no_description(self) -> None:
+        description = self.album_service.get_album_description(
+            self.album_name
+        )
+        self.assertEqual(description, "")
 
-    def test_newly_created_album_has_no_last_image(self):
-        self.assertEqual(self.album.get_relative_url_of_last_image(), None)
+    def test_newly_created_album_has_no_last_image(self) -> None:
+        last_image = self.album_service.get_last_image_name(
+            self.album_name
+        )
+        self.assertEqual(last_image, None)
 
-    def test_newly_created_album_has_no_last_thumbnail(self):
-        self.assertEqual(self.album.get_relative_url_of_last_thumbnail(), None)
+    def test_newly_created_album_has_no_last_thumbnail(self) -> None:
+        last_thumbnail = self.album_service.get_last_thumbnail_name(
+            self.album_name
+        )
+        self.assertEqual(last_thumbnail, None)
 
-    def test_set_album_description(self):
-        self.album.set_album_description("This album is a test")
-        self.assertEqual(self.album.get_album_description(), "This album is a test")
+    def test_set_album_description(self) -> None:
+        self.album_service.set_album_description(
+            self.album_name,
+            "This album is a test"
+        )
+        description = self.album_service.get_album_description(
+            self.album_name
+        )
+        self.assertEqual(description, "This album is a test")
 
-    def test_capture_image_to_album(self):
-        camera_module = create_fast_dummy_module()
-        self.album.try_capture_image_to_album(camera_module)
+    def test_capture_image_to_album(self) -> None:
+        config = create_fast_dummy_config(self.albums_dir)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
 
-        expected_relative_image_url = "{}/test_album/images/image0001.png".format(self.test_dir_name)
-        expected_relative_thumbnail_url = "{}/test_album/thumbnails/image0001.jpg".format(self.test_dir_name)
+        expected_relative_image_url = "image0001.png"
+        expected_relative_thumbnail_url = "image0001.jpg"
 
-        self.assertEqual(self.album.get_relative_url_of_last_image(), expected_relative_image_url)
-        self.assertEqual(self.album.get_relative_url_of_last_thumbnail(), expected_relative_thumbnail_url)
+        last_image_url = self.album_service.get_last_image_name(
+            self.album_name
+        )
+        last_thumbnail_url = self.album_service.get_last_thumbnail_name(
+            self.album_name
+        )
 
-    def test_captured_image_exists(self):
-        camera_module = create_fast_dummy_module()
-        self.album.try_capture_image_to_album(camera_module)
+        self.assertEqual(last_image_url, expected_relative_image_url)
+        self.assertEqual(last_thumbnail_url, expected_relative_thumbnail_url)
+
+    def test_captured_image_exists(self) -> None:
+        config = create_fast_dummy_config(self.albums_dir)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
 
         expected_image_filepath = os.path.join(
             self.test_dir_name,
@@ -97,13 +133,14 @@ class FolderAlbumTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(expected_image_filepath))
 
-    def test_capture_image_after_externally_adding_files(self):
+    def test_capture_image_after_externally_adding_files(self) -> None:
         self.add_dummy_image_file_to_album("test_album", "image0001.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0002.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0003.jpg")
 
-        camera_module = create_fast_dummy_module()
-        self.album.try_capture_image_to_album(camera_module)
+        config = create_fast_dummy_config(self.albums_dir)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
 
         expected_image_filepath = os.path.join(
             self.test_dir_name,
@@ -114,14 +151,15 @@ class FolderAlbumTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(expected_image_filepath))
 
-    def test_capture_image_after_externally_adding_files_weird_order(self):
+    def test_capture_image_after_externally_adding_files_weird_order(self) -> None:
         self.add_dummy_image_file_to_album("test_album", "image0001.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0002.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0003.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0017.jpg")
 
-        camera_module = create_fast_dummy_module()
-        self.album.try_capture_image_to_album(camera_module)
+        config = create_fast_dummy_config(self.albums_dir)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
 
         expected_image_filepath = os.path.join(
             self.test_dir_name,
@@ -132,14 +170,15 @@ class FolderAlbumTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(expected_image_filepath))
 
-    def test_capture_image_with_wrong_image_number_file(self):
+    def test_capture_image_with_wrong_image_number_file(self) -> None:
         self.add_dummy_image_file_to_album("test_album", "image0001.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0002.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0003.jpg")
         self.create_current_image_number_file("test_album", 20)
 
-        camera_module = create_fast_dummy_module()
-        self.album.try_capture_image_to_album(camera_module)
+        config = create_fast_dummy_config(self.albums_dir)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
 
         expected_image_filepath = os.path.join(
             self.test_dir_name,
@@ -150,9 +189,10 @@ class FolderAlbumTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(expected_image_filepath))
 
-    def test_capture_image_creates_thumbnail(self):
-        camera_module = create_fast_dummy_module()
-        self.album.try_capture_image_to_album(camera_module)
+    def test_capture_image_creates_thumbnail(self) -> None:
+        config = create_fast_dummy_config(self.albums_dir)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
 
         expected_thumbnail_filepath = os.path.join(
             self.test_dir_name,
@@ -163,13 +203,14 @@ class FolderAlbumTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(expected_thumbnail_filepath))
 
-    def test_image_and_thumbnail_same_number_after_capture(self):
-        camera_module = create_fast_dummy_module()
+    def test_image_and_thumbnail_same_number_after_capture(self) -> None:
+        config = create_fast_dummy_config(self.albums_dir)
         self.add_dummy_image_file_to_album("test_album", "image0001.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0002.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0003.jpg")
 
-        self.album.try_capture_image_to_album(camera_module)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
 
         expected_thumbnail_filepath = os.path.join(
             self.test_dir_name,
@@ -180,30 +221,12 @@ class FolderAlbumTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(expected_thumbnail_filepath))
 
-    def test_capture_image_with_camera_module_requiring_raw_image_transfer(self):
-        raw_module = DummyRawModule()
-        self.album.try_capture_image_to_album(raw_module)
-
-        expected_image_filepath = os.path.join(
-            self.test_dir_name,
-            "test_album",
-            "images",
-            "image0001.png"
-        )
-        self.assertTrue(os.path.exists(expected_image_filepath))
-
-        expected_raw_image_filepath = os.path.join(
-            self.test_dir_name,
-            "test_album",
-            "raw_images",
-            "image0001.cr2"
-        )
-        self.assertTrue(os.path.exists(expected_raw_image_filepath))
-
-    def test_ensure_thumbnails_correct(self):
-        camera_module = create_fast_dummy_module()
-        self.album.try_capture_image_to_album(camera_module)
-        self.album.try_capture_image_to_album(camera_module)
+    def test_ensure_thumbnails_correct(self) -> None:
+        config = create_fast_dummy_config(self.albums_dir)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
 
         thumbnails_path = os.path.join(
             self.test_dir_name,
@@ -212,16 +235,19 @@ class FolderAlbumTestCase(unittest.TestCase):
         )
         shutil.rmtree(thumbnails_path)  # Remove thumbnails folder
 
-        self.album.ensure_thumbnails_correct()
+        self.album_service.ensure_album_thumbnails_correct(self.album_name)
 
         thumbnails_folder_content = os.listdir(thumbnails_path)
         self.assertEqual(thumbnails_folder_content, ['image0001.jpg', 'image0002.jpg'])
 
-    def test_ensure_thumbnails_correct_with_deleted_image(self):
-        camera_module = create_fast_dummy_module()
-        self.album.try_capture_image_to_album(camera_module)
-        self.album.try_capture_image_to_album(camera_module)
-        self.album.try_capture_image_to_album(camera_module)
+    def test_ensure_thumbnails_correct_with_deleted_image(self) -> None:
+        config = create_fast_dummy_config(self.albums_dir)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
 
         path_to_image2 = os.path.join(
             self.test_dir_name,
@@ -230,7 +256,7 @@ class FolderAlbumTestCase(unittest.TestCase):
             "image0002.png"
         )
         os.remove(path_to_image2)
-        self.album.ensure_thumbnails_correct()
+        self.album_service.ensure_album_thumbnails_correct(self.album_name)
 
         thumbnails_path = os.path.join(
             self.test_dir_name,
@@ -240,40 +266,49 @@ class FolderAlbumTestCase(unittest.TestCase):
         thumbnails_folder_content = os.listdir(thumbnails_path)
         self.assertEqual(thumbnails_folder_content, ['image0001.jpg', 'image0003.jpg'])
 
-    def test_get_url_of_all_images(self):
-        camera_module = create_fast_dummy_module()
-        self.album.try_capture_image_to_album(camera_module)
-        self.album.try_capture_image_to_album(camera_module)
-        self.album.try_capture_image_to_album(camera_module)
+    def test_get_url_of_all_images(self) -> None:
+        config = create_fast_dummy_config(self.albums_dir)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
 
-        relative_image_urls = self.album.get_relative_urls_of_all_images()
+        image_names = self.album_service.get_image_names(
+            self.album_name
+        )
 
-        expected_realtive_image_urls = [
-            self.test_dir_name + "/test_album/images/image0001.png",
-            self.test_dir_name + "/test_album/images/image0002.png",
-            self.test_dir_name + "/test_album/images/image0003.png",
+        expected_image_names = [
+            "image0003.png",
+            "image0002.png",
+            "image0001.png",
         ]
-        self.assertEqual(relative_image_urls, expected_realtive_image_urls)
+        self.assertEqual(image_names, expected_image_names)
 
-    def test_get_url_of_all_thumbnails(self):
-        camera_module = create_fast_dummy_module()
-        self.album.try_capture_image_to_album(camera_module)
-        self.album.try_capture_image_to_album(camera_module)
+    def test_get_url_of_all_thumbnails(self) -> None:
+        config = create_fast_dummy_config(self.albums_dir)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
 
-        relative_thumbnail_urls = self.album.get_relative_urls_of_all_thumbnails()
+        thumbnail_names = self.album_service.get_thumbnail_names(
+            self.album_name
+        )
 
-        # The urls should be relative to album container (The folder
-        # which contains all the album folders)
-        expected_relative_thumnail_urls = [
-            self.test_dir_name + "/test_album/thumbnails/image0001.jpg",
-            self.test_dir_name + "/test_album/thumbnails/image0002.jpg",
+        expected_thumbnail_names = [
+            "image0002.jpg",
+            "image0001.jpg",
         ]
-        self.assertEqual(relative_thumbnail_urls, expected_relative_thumnail_urls)
+        self.assertEqual(thumbnail_names, expected_thumbnail_names)
 
-    def test_album_empty_after_deleting_all_images(self):
-        camera_module = create_fast_dummy_module()
-        self.album.try_capture_image_to_album(camera_module)
-        self.album.try_capture_image_to_album(camera_module)
+    def test_album_empty_after_deleting_all_images(self) -> None:
+        config = create_fast_dummy_config(self.albums_dir)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
+        self.configure_camera(config.camera)
+        self.album_service.capture_image_to_album(self.album_name)
 
         images_path = os.path.join(
             self.test_dir_name,
@@ -283,7 +318,10 @@ class FolderAlbumTestCase(unittest.TestCase):
         shutil.rmtree(images_path)  # Remove images folder
         os.mkdir(images_path)
 
-        self.assertEqual(self.album.get_relative_url_of_last_image(), None)
+        last_image = self.album_service.get_last_image_name(
+            self.album_name
+        )
+        self.assertEqual(last_image, None)
 
 
 if __name__ == '__main__':
