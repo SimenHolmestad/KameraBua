@@ -9,3 +9,4 @@ pydantic-settings
 httpx
 uvicorn
 gphoto2
+pyautogui
